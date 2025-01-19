@@ -4,17 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
-
 // GET /api/products/[id] - Get a single product
-export async function GET(_: NextRequest, context: RouteContext) {
+export async function GET(
+  _: Request | NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
     });
 
     if (!product) {
@@ -32,7 +29,10 @@ export async function GET(_: NextRequest, context: RouteContext) {
 }
 
 // PUT /api/products/[id] - Update a product (admin only)
-export async function PUT(request: NextRequest, context: RouteContext) {
+export async function PUT(
+  request: Request | NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       await request.json();
 
     const product = await prisma.product.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data: {
         name,
         description,
@@ -65,7 +65,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 }
 
 // DELETE /api/products/[id] - Delete a product (admin only)
-export async function DELETE(_: NextRequest, context: RouteContext) {
+export async function DELETE(
+  _: Request | NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
@@ -73,7 +76,7 @@ export async function DELETE(_: NextRequest, context: RouteContext) {
     }
 
     await prisma.product.delete({
-      where: { id: context.params.id },
+      where: { id: params.id },
     });
 
     return NextResponse.json(
