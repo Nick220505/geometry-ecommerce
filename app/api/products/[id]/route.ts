@@ -7,11 +7,11 @@ export const runtime = "nodejs";
 // GET /api/products/[id] - Get a single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: { id: string } },
 ) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
     });
 
     if (!product) {
@@ -30,8 +30,8 @@ export async function GET(
 
 // PUT /api/products/[id] - Update a product (admin only)
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } },
+  request: NextRequest,
+  context: { params: { id: string } },
 ) {
   try {
     const session = await auth();
@@ -40,10 +40,10 @@ export async function PUT(
     }
 
     const { name, description, price, type, stock, imageUrl } =
-      await req.json();
+      await request.json();
 
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: {
         name,
         description,
@@ -66,8 +66,8 @@ export async function PUT(
 
 // DELETE /api/products/[id] - Delete a product (admin only)
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } },
+  request: NextRequest,
+  context: { params: { id: string } },
 ) {
   try {
     const session = await auth();
@@ -76,7 +76,7 @@ export async function DELETE(
     }
 
     await prisma.product.delete({
-      where: { id: params.id },
+      where: { id: context.params.id },
     });
 
     return NextResponse.json(
