@@ -19,7 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface Product {
   id: string;
@@ -35,7 +35,7 @@ interface CartItem extends Product {
   quantity: number;
 }
 
-export default function StorePage() {
+function StoreContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -118,26 +118,22 @@ export default function StorePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <div className="rotate-slow w-20 h-20 border-4 border-primary rounded-full border-t-transparent" />
-        </div>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="rotate-slow w-20 h-20 border-4 border-primary rounded-full border-t-transparent" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <p className="text-lg text-red-500">{error}</p>
-        </div>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <p className="text-lg text-red-500">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-8">
+    <>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-4xl font-bold animate-gradient">
@@ -297,6 +293,22 @@ export default function StorePage() {
           </Card>
         ))}
       </div>
+    </>
+  );
+}
+
+export default function StorePage() {
+  return (
+    <div className="container mx-auto p-8">
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-[50vh]">
+            <div className="rotate-slow w-20 h-20 border-4 border-primary rounded-full border-t-transparent" />
+          </div>
+        }
+      >
+        <StoreContent />
+      </Suspense>
       <ChatBot />
     </div>
   );
