@@ -22,13 +22,104 @@ export function Navigation() {
     <nav className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-8">
-          <Link href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold animate-gradient">
             Geometry & Essences
           </Link>
           <div className="hidden md:flex space-x-4">
-            <Link href="/store">
-              <Button variant="ghost">{t("nav.store")}</Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <span className="text-xl rotate-slow inline-block">⬡</span>
+                  {t("nav.sacred_geometry")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <Link href="/store?category=Sacred Geometry">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🔮</span>
+                    {t("nav.all_geometry")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=tetrahedron">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">△</span>
+                    {t("nav.tetrahedron")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=cube">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">□</span>
+                    {t("nav.cube")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=octahedron">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">◇</span>
+                    {t("nav.octahedron")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=icosahedron">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">⬟</span>
+                    {t("nav.icosahedron")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=dodecahedron">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">⬡</span>
+                    {t("nav.dodecahedron")}
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <span className="text-xl float inline-block">🌸</span>
+                  {t("nav.flower_essences")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <Link href="/store?category=Flower Essence">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🌺</span>
+                    {t("nav.all_essences")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=agrimony">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🌼</span>
+                    {t("nav.agrimony")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=aspen">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🌿</span>
+                    {t("nav.aspen")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=beech">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🍃</span>
+                    {t("nav.beech")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=centaury">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🌸</span>
+                    {t("nav.centaury")}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/store?type=cerato">
+                  <DropdownMenuItem>
+                    <span className="text-lg mr-2">🌹</span>
+                    {t("nav.cerato")}
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {session?.user.role === "ADMIN" && (
               <Link href="/admin/dashboard">
                 <Button variant="ghost">{t("nav.dashboard")}</Button>

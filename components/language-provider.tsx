@@ -204,6 +204,74 @@ export const translations: Translations = {
     en: "Passwords do not match",
     es: "Las contraseñas no coinciden",
   },
+  "nav.sacred_geometry": {
+    en: "Sacred Geometry",
+    es: "Geometría Sagrada",
+  },
+  "nav.flower_essences": {
+    en: "Flower Essences",
+    es: "Esencias Florales",
+  },
+  "nav.all_geometry": {
+    en: "All Geometric Items",
+    es: "Todos los Items Geométricos",
+  },
+  "nav.all_essences": {
+    en: "All Flower Essences",
+    es: "Todas las Esencias Florales",
+  },
+  "nav.tetrahedron": {
+    en: "Tetrahedron (Fire)",
+    es: "Tetraedro (Fuego)",
+  },
+  "nav.cube": {
+    en: "Cube (Earth)",
+    es: "Cubo (Tierra)",
+  },
+  "nav.octahedron": {
+    en: "Octahedron (Air)",
+    es: "Octaedro (Aire)",
+  },
+  "nav.icosahedron": {
+    en: "Icosahedron (Water)",
+    es: "Icosaedro (Agua)",
+  },
+  "nav.dodecahedron": {
+    en: "Dodecahedron (Aether)",
+    es: "Dodecaedro (Éter)",
+  },
+  "nav.agrimony": {
+    en: "Agrimony",
+    es: "Agrimonia",
+  },
+  "nav.aspen": {
+    en: "Aspen",
+    es: "Álamo Temblón",
+  },
+  "nav.beech": {
+    en: "Beech",
+    es: "Haya",
+  },
+  "nav.centaury": {
+    en: "Centaury",
+    es: "Centaura",
+  },
+  "nav.cerato": {
+    en: "Cerato",
+    es: "Cerato",
+  },
+  "store.category.sacred geometry": {
+    en: "Sacred Geometry Items",
+    es: "Items de Geometría Sagrada",
+  },
+  "store.category.flower essence": {
+    en: "Flower Essences",
+    es: "Esencias Florales",
+  },
+  "store.filtering_by": {
+    en: "Filtering by",
+    es: "Filtrando por",
+  },
 };
 
 interface LanguageContextType {
