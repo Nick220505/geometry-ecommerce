@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatBot } from "@/components/chat-bot";
 import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -231,6 +232,7 @@ export default function StorePage() {
           </Card>
         ))}
       </div>
+      <ChatBot />
     </div>
   );
 }
