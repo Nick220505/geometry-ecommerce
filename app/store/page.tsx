@@ -17,57 +17,51 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// Mock data for products with translation keys
-const mockProducts = [
-  {
-    id: 1,
-    titleKey: "store.product.platonic.title",
-    typeKey: "store.category.geometry",
-    price: 29.99,
-    descriptionKey: "store.product.platonic.description",
-    image: "/placeholder.png",
-  },
-  {
-    id: 2,
-    titleKey: "store.product.rose.title",
-    typeKey: "store.category.essence",
-    price: 19.99,
-    descriptionKey: "store.product.rose.description",
-    image: "/placeholder.png",
-  },
-  {
-    id: 3,
-    titleKey: "store.product.sacred.title",
-    typeKey: "store.category.geometry",
-    price: 39.99,
-    descriptionKey: "store.product.sacred.description",
-    image: "/placeholder.png",
-  },
-  {
-    id: 4,
-    titleKey: "store.product.lavender.title",
-    typeKey: "store.category.essence",
-    price: 15.99,
-    descriptionKey: "store.product.lavender.description",
-    image: "/placeholder.png",
-  },
-];
-
-interface CartItem {
-  id: number;
-  titleKey: string;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
   price: number;
+  type: string;
+  stock: number;
+  imageUrl?: string;
+}
+
+interface CartItem extends Product {
   quantity: number;
 }
 
 export default function StorePage() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const { t } = useTranslation();
 
-  const addToCart = (product: (typeof mockProducts)[0]) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        setError("Failed to load products");
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const addToCart = (product: Product) => {
     setCart((currentCart) => {
       const existingItem = currentCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -77,25 +71,17 @@ export default function StorePage() {
             : item,
         );
       }
-      return [
-        ...currentCart,
-        {
-          id: product.id,
-          titleKey: product.titleKey,
-          price: product.price,
-          quantity: 1,
-        },
-      ];
+      return [...currentCart, { ...product, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCart((currentCart) =>
       currentCart.filter((item) => item.id !== productId),
     );
   };
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     setCart((currentCart) =>
       currentCart.map((item) =>
@@ -107,6 +93,26 @@ export default function StorePage() {
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-8">
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <p className="text-lg">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-8">
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <p className="text-lg text-red-500">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-8">
@@ -134,7 +140,7 @@ export default function StorePage() {
                       className="flex justify-between items-center"
                     >
                       <div>
-                        <p className="font-medium">{t(item.titleKey)}</p>
+                        <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-gray-500">
                           ${item.price.toFixed(2)}
                         </p>
@@ -185,24 +191,40 @@ export default function StorePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockProducts.map((product) => (
+        {products.map((product) => (
           <Card key={product.id}>
             <CardHeader>
-              <CardTitle>{t(product.titleKey)}</CardTitle>
-              <CardDescription>{t(product.typeKey)}</CardDescription>
+              <CardTitle>{product.name}</CardTitle>
+              <CardDescription>{product.type}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="aspect-square relative mb-4 bg-gray-100 rounded-lg">
-                {/* Add proper image component here */}
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                  Image Placeholder
-                </div>
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                    Image Placeholder
+                  </div>
+                )}
               </div>
-              <p className="text-gray-600">{t(product.descriptionKey)}</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {product.description}
+              </p>
+              {product.stock <= 0 && (
+                <p className="text-red-500 mt-2">Out of stock</p>
+              )}
             </CardContent>
             <CardFooter className="flex justify-between">
               <p className="font-bold">${product.price.toFixed(2)}</p>
-              <Button onClick={() => addToCart(product)}>
+              <Button
+                onClick={() => addToCart(product)}
+                disabled={product.stock <= 0}
+              >
                 {t("store.product.addToCart")}
               </Button>
             </CardFooter>
