@@ -144,6 +144,66 @@ export const translations: Translations = {
     en: "Sign In",
     es: "Iniciar Sesión",
   },
+  "auth.register.title": {
+    en: "Register",
+    es: "Registrarse",
+  },
+  "auth.register.description": {
+    en: "Create a new account to start shopping",
+    es: "Crea una nueva cuenta para empezar a comprar",
+  },
+  "auth.register.name": {
+    en: "Full Name",
+    es: "Nombre Completo",
+  },
+  "auth.register.email": {
+    en: "Email",
+    es: "Correo Electrónico",
+  },
+  "auth.register.password": {
+    en: "Password",
+    es: "Contraseña",
+  },
+  "auth.register.confirmPassword": {
+    en: "Confirm Password",
+    es: "Confirmar Contraseña",
+  },
+  "auth.register.submit": {
+    en: "Create Account",
+    es: "Crear Cuenta",
+  },
+  "auth.register.haveAccount": {
+    en: "Already have an account?",
+    es: "¿Ya tienes una cuenta?",
+  },
+  "auth.register.login": {
+    en: "Login here",
+    es: "Inicia sesión aquí",
+  },
+  "validation.nameRequired": {
+    en: "Name is required",
+    es: "El nombre es requerido",
+  },
+  "validation.emailRequired": {
+    en: "Email is required",
+    es: "El correo electrónico es requerido",
+  },
+  "validation.invalidEmail": {
+    en: "Invalid email format",
+    es: "Formato de correo electrónico inválido",
+  },
+  "validation.passwordRequired": {
+    en: "Password is required",
+    es: "La contraseña es requerida",
+  },
+  "validation.passwordLength": {
+    en: "Password must be at least 6 characters",
+    es: "La contraseña debe tener al menos 6 caracteres",
+  },
+  "validation.passwordsMatch": {
+    en: "Passwords do not match",
+    es: "Las contraseñas no coinciden",
+  },
 };
 
 interface LanguageContextType {

@@ -11,13 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 export function Navigation() {
-  const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
   const { t } = useTranslation();
+  const { data: session } = useSession();
 
   return (
     <nav className="border-b">
@@ -30,7 +29,7 @@ export function Navigation() {
             <Link href="/store">
               <Button variant="ghost">{t("nav.store")}</Button>
             </Link>
-            {isAdmin && (
+            {session?.user.role === "ADMIN" && (
               <Link href="/admin/dashboard">
                 <Button variant="ghost">{t("nav.dashboard")}</Button>
               </Link>
@@ -45,13 +44,27 @@ export function Navigation() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder-avatar.png" alt="User" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarImage
+                    src="/placeholder-avatar.png"
+                    alt={session?.user?.name || "User"}
+                  />
+                  <AvatarFallback>
+                    {session?.user?.name?.[0] || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {!isAdmin ? (
+              {session?.user ? (
+                <>
+                  <DropdownMenuItem disabled>
+                    {session.user.name || session.user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    {t("cta.signout")}
+                  </DropdownMenuItem>
+                </>
+              ) : (
                 <>
                   <DropdownMenuItem>
                     <Link href="/auth/login">{t("cta.signin")}</Link>
@@ -59,12 +72,6 @@ export function Navigation() {
                   <DropdownMenuItem>
                     <Link href="/auth/register">Register</Link>
                   </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Logout</DropdownMenuItem>
                 </>
               )}
             </DropdownMenuContent>
