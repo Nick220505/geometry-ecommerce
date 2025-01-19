@@ -30,7 +30,39 @@ async function main() {
     },
   });
 
-  console.log({ admin, user });
+  // Create initial products
+  const products = await Promise.all([
+    prisma.product.upsert({
+      where: { id: "platonic-solids-set" },
+      update: {},
+      create: {
+        id: "platonic-solids-set",
+        name: "Platonic Solids Set",
+        description:
+          "Complete set of all five Platonic solids, perfect for sacred geometry study and meditation.",
+        price: 29.99,
+        type: "3D Geometry",
+        stock: 50,
+        imageUrl: "/products/platonic-solids.jpg",
+      },
+    }),
+    prisma.product.upsert({
+      where: { id: "rose-essence" },
+      update: {},
+      create: {
+        id: "rose-essence",
+        name: "Rose Essence",
+        description:
+          "Pure rose flower essence for emotional healing and heart chakra balancing.",
+        price: 19.99,
+        type: "Flower Essence",
+        stock: 100,
+        imageUrl: "/products/rose-essence.jpg",
+      },
+    }),
+  ]);
+
+  console.log({ admin, user, products });
 }
 
 main()

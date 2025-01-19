@@ -18,48 +18,149 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
 
-// Mock data for products
-const mockProducts = [
-  {
-    id: 1,
-    name: "Platonic Solids Set",
-    type: "3D Geometry",
-    price: 29.99,
-    stock: 50,
-  },
-  {
-    id: 2,
-    name: "Rose Essence",
-    type: "Flower Essence",
-    price: 19.99,
-    stock: 100,
-  },
-];
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  price: number;
+  stock: number;
+  imageUrl?: string;
+}
 
 export default function AdminDashboard() {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState({
     name: "",
+    description: "",
     type: "",
     price: "",
     stock: "",
+    imageUrl: "",
   });
 
-  const handleAddProduct = (e: React.FormEvent) => {
+  // Fetch products
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("/api/products");
+      if (!response.ok) throw new Error("Failed to fetch products");
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setError("Failed to load products");
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleAddProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const product = {
-      id: products.length + 1,
-      name: newProduct.name,
-      type: newProduct.type,
-      price: parseFloat(newProduct.price),
-      stock: parseInt(newProduct.stock),
-    };
-    setProducts([...products, product]);
-    setIsAddProductOpen(false);
-    setNewProduct({ name: "", type: "", price: "", stock: "" });
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newProduct.name,
+          description: newProduct.description,
+          type: newProduct.type,
+          price: parseFloat(newProduct.price),
+          stock: parseInt(newProduct.stock),
+          imageUrl: newProduct.imageUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create product");
+      }
+
+      await fetchProducts();
+      setIsAddProductOpen(false);
+      setNewProduct({
+        name: "",
+        description: "",
+        type: "",
+        price: "",
+        stock: "",
+        imageUrl: "",
+      });
+    } catch (error) {
+      console.error("Error adding product:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to add product",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/products/${editingProduct.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingProduct),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update product");
+      }
+
+      await fetchProducts();
+      setIsEditProductOpen(false);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to update product",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to delete product");
+      }
+
+      await fetchProducts();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to delete product",
+      );
+    }
   };
 
   return (
@@ -83,6 +184,20 @@ export default function AdminDashboard() {
                     value={newProduct.name}
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, name: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="description">Description</label>
+                  <Textarea
+                    id="description"
+                    value={newProduct.description}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: e.target.value,
+                      })
                     }
                     required
                   />
@@ -123,14 +238,26 @@ export default function AdminDashboard() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Add Product
+                <div className="space-y-2">
+                  <label htmlFor="imageUrl">Image URL</label>
+                  <Input
+                    id="imageUrl"
+                    value={newProduct.imageUrl}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, imageUrl: e.target.value })
+                    }
+                  />
+                </div>
+                {error && <p className="text-sm text-red-500">{error}</p>}
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Adding..." : "Add Product"}
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
         </CardHeader>
         <CardContent>
+          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
           <Table>
             <TableHeader>
               <TableRow>
@@ -148,9 +275,142 @@ export default function AdminDashboard() {
                   <TableCell>{product.type}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">
-                      Edit
+                  <TableCell className="space-x-2">
+                    <Dialog
+                      open={
+                        isEditProductOpen && editingProduct?.id === product.id
+                      }
+                      onOpenChange={(open) => {
+                        setIsEditProductOpen(open);
+                        if (!open) setEditingProduct(null);
+                      }}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingProduct(product)}
+                        >
+                          Edit
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Product</DialogTitle>
+                        </DialogHeader>
+                        {editingProduct && (
+                          <form
+                            onSubmit={handleEditProduct}
+                            className="space-y-4"
+                          >
+                            <div className="space-y-2">
+                              <label htmlFor="edit-name">Product Name</label>
+                              <Input
+                                id="edit-name"
+                                value={editingProduct.name}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    name: e.target.value,
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="edit-description">
+                                Description
+                              </label>
+                              <Textarea
+                                id="edit-description"
+                                value={editingProduct.description}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    description: e.target.value,
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="edit-type">Type</label>
+                              <Input
+                                id="edit-type"
+                                value={editingProduct.type}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    type: e.target.value,
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="edit-price">Price</label>
+                              <Input
+                                id="edit-price"
+                                type="number"
+                                step="0.01"
+                                value={editingProduct.price}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    price: parseFloat(e.target.value),
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="edit-stock">Stock</label>
+                              <Input
+                                id="edit-stock"
+                                type="number"
+                                value={editingProduct.stock}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    stock: parseInt(e.target.value),
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="edit-imageUrl">Image URL</label>
+                              <Input
+                                id="edit-imageUrl"
+                                value={editingProduct.imageUrl || ""}
+                                onChange={(e) =>
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    imageUrl: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                            {error && (
+                              <p className="text-sm text-red-500">{error}</p>
+                            )}
+                            <Button
+                              type="submit"
+                              className="w-full"
+                              disabled={isLoading}
+                            >
+                              {isLoading ? "Saving..." : "Save Changes"}
+                            </Button>
+                          </form>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    >
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
