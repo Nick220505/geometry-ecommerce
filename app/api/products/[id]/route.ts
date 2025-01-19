@@ -1,12 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 // GET /api/products/[id] - Get a single product
 export async function GET(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   try {
