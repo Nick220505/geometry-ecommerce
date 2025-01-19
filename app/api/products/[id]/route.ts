@@ -4,14 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
 // GET /api/products/[id] - Get a single product
-export async function GET(request: NextRequest, { params }: Props) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const product = await prisma.product.findUnique({
       where: { id: params.id },
@@ -32,7 +29,10 @@ export async function GET(request: NextRequest, { params }: Props) {
 }
 
 // PUT /api/products/[id] - Update a product (admin only)
-export async function PUT(request: NextRequest, { params }: Props) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
@@ -65,7 +65,10 @@ export async function PUT(request: NextRequest, { params }: Props) {
 }
 
 // DELETE /api/products/[id] - Delete a product (admin only)
-export async function DELETE(request: NextRequest, { params }: Props) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
     const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
