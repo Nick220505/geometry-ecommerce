@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface Product {
@@ -47,6 +48,8 @@ export default function AdminDashboard() {
     stock: "",
     imageUrl: "",
   });
+
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Fetch products
   const fetchProducts = async () => {
@@ -163,6 +166,51 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isEdit: boolean = false,
+  ) => {
+    if (!e.target.files?.[0]) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+    formData.append(
+      "type",
+      isEdit ? editingProduct?.type || "" : newProduct.type,
+    );
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+
+      if (isEdit && editingProduct) {
+        setEditingProduct({
+          ...editingProduct,
+          imageUrl: data.url,
+        });
+      } else {
+        setNewProduct({
+          ...newProduct,
+          imageUrl: data.url,
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setError("Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return (
     <div className="p-8">
       <Card>
@@ -239,17 +287,37 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="imageUrl">Image URL</label>
+                  <label htmlFor="image">Product Image</label>
                   <Input
-                    id="imageUrl"
-                    value={newProduct.imageUrl}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, imageUrl: e.target.value })
-                    }
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e)}
+                    disabled={uploadingImage}
                   />
+                  {uploadingImage && (
+                    <p className="text-sm text-muted-foreground">
+                      Uploading image...
+                    </p>
+                  )}
+                  {newProduct.imageUrl && (
+                    <div className="mt-2">
+                      <Image
+                        src={newProduct.imageUrl}
+                        alt="Product preview"
+                        width={128}
+                        height={128}
+                        className="w-32 h-32 object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || uploadingImage}
+                >
                   {isLoading ? "Adding..." : "Add Product"}
                 </Button>
               </form>
@@ -261,6 +329,7 @@ export default function AdminDashboard() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Price</TableHead>
@@ -271,6 +340,29 @@ export default function AdminDashboard() {
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    {product.imageUrl ? (
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <Image
+                        src={
+                          product.type === "Sacred Geometry"
+                            ? `/products/sacred-geometry.svg#${product.id}`
+                            : "/products/flower-essence.svg"
+                        }
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    )}
+                  </TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.type}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
@@ -379,17 +471,30 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label htmlFor="edit-imageUrl">Image URL</label>
+                              <label htmlFor="edit-image">Product Image</label>
                               <Input
-                                id="edit-imageUrl"
-                                value={editingProduct.imageUrl || ""}
-                                onChange={(e) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    imageUrl: e.target.value,
-                                  })
-                                }
+                                id="edit-image"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, true)}
+                                disabled={uploadingImage}
                               />
+                              {uploadingImage && (
+                                <p className="text-sm text-muted-foreground">
+                                  Uploading image...
+                                </p>
+                              )}
+                              {editingProduct.imageUrl && (
+                                <div className="mt-2">
+                                  <Image
+                                    src={editingProduct.imageUrl}
+                                    alt="Product preview"
+                                    width={128}
+                                    height={128}
+                                    className="w-32 h-32 object-cover rounded-lg"
+                                  />
+                                </div>
+                              )}
                             </div>
                             {error && (
                               <p className="text-sm text-red-500">{error}</p>
@@ -397,7 +502,7 @@ export default function AdminDashboard() {
                             <Button
                               type="submit"
                               className="w-full"
-                              disabled={isLoading}
+                              disabled={isLoading || uploadingImage}
                             >
                               {isLoading ? "Saving..." : "Save Changes"}
                             </Button>
