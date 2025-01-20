@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -225,6 +226,9 @@ export default function AdminDashboard() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t("admin.add_new_product")}</DialogTitle>
+                <DialogDescription>
+                  {t("admin.add_product_description")}
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleAddProduct} className="space-y-4">
                 <div className="space-y-2">
@@ -391,6 +395,9 @@ export default function AdminDashboard() {
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>{t("admin.edit_product")}</DialogTitle>
+                          <DialogDescription>
+                            {t("admin.edit_product_description")}
+                          </DialogDescription>
                         </DialogHeader>
                         {editingProduct && (
                           <form

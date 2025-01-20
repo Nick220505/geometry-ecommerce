@@ -384,6 +384,14 @@ export const translations: Translations = {
     en: "Failed to load products",
     es: "Error al cargar los productos",
   },
+  "admin.add_product_description": {
+    en: "Add a new product to your store with details like name, description, price, and image",
+    es: "Añade un nuevo producto a tu tienda con detalles como nombre, descripción, precio e imagen",
+  },
+  "admin.edit_product_description": {
+    en: "Edit the selected product's details including name, description, price, and image",
+    es: "Edita los detalles del producto seleccionado incluyendo nombre, descripción, precio e imagen",
+  },
 };
 
 interface LanguageContextType {
