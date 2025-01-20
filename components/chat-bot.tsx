@@ -35,7 +35,7 @@ export function ChatBot() {
 
       setMessages([{ role: "assistant", content: welcomeMessage }]);
     }
-  }, [isOpen, language]);
+  }, [isOpen, language, messages.length]);
 
   useEffect(() => {
     scrollToBottom();

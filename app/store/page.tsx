@@ -14,6 +14,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -71,7 +72,7 @@ function StoreContent() {
     };
 
     fetchProducts();
-  }, [language]); // Re-fetch when language changes
+  }, [language, t]);
 
   useEffect(() => {
     let filtered = [...products];
@@ -168,6 +169,7 @@ function StoreContent() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>{t("store.cart")}</SheetTitle>
+              <SheetDescription>{t("store.cart.description")}</SheetDescription>
             </SheetHeader>
             <div className="mt-8">
               {cart.length === 0 ? (
