@@ -19,7 +19,7 @@ export function Navigation() {
   const { data: session } = useSession();
 
   return (
-    <nav className="border-b">
+    <nav className="fixed top-0 left-0 right-0 border-b bg-background/80 backdrop-blur-sm z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-8">
           <Link href="/" className="text-xl font-bold animate-gradient">

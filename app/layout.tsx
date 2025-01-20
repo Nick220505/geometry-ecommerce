@@ -72,7 +72,7 @@ export default function RootLayout({
                 </div>
 
                 <Navigation />
-                <main className="relative">{children}</main>
+                <main className="relative pt-16">{children}</main>
               </div>
             </LanguageProvider>
           </ThemeProvider>

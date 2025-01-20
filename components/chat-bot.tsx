@@ -113,7 +113,7 @@ export function ChatBot() {
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 w-96 h-[600px] shadow-xl flex flex-col">
+    <Card className="fixed bottom-4 right-4 w-96 h-[600px] shadow-xl flex flex-col bg-background/80 backdrop-blur-sm border border-purple-500/20 animate-in slide-in-from-right duration-300">
       <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
         <h2 className="font-semibold">
           {language === "es" ? "Asistente de Compras" : "Shopping Assistant"}
@@ -141,7 +141,7 @@ export function ChatBot() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -172,7 +172,10 @@ export function ChatBot() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t">
+      <form
+        onSubmit={handleSubmit}
+        className="p-4 border-t bg-background/80 backdrop-blur-sm"
+      >
         <div className="flex gap-2">
           <Input
             value={input}
@@ -183,11 +186,12 @@ export function ChatBot() {
                 : "Type your message..."
             }
             disabled={isLoading}
+            className="border-purple-500/20 focus:border-purple-500"
           />
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
           >
             {language === "es" ? "Enviar" : "Send"}
           </Button>
