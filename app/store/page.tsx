@@ -259,11 +259,16 @@ function StoreContent() {
                     className="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-110 duration-500"
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-6xl opacity-50 rotate-slow">
-                      {product.type === "Sacred Geometry" ? "⬡" : "🌸"}
-                    </div>
-                  </div>
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={
+                      product.type === "Sacred Geometry"
+                        ? `/products/sacred-geometry.svg#${product.id}`
+                        : "/products/flower-essence.svg"
+                    }
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-110 duration-500"
+                  />
                 )}
               </div>
               <p className="text-muted-foreground grow-animation">
