@@ -48,6 +48,10 @@ export const translations: Translations = {
     en: "Review your items and proceed to checkout",
     es: "Revisa tus artículos y procede al pago",
   },
+  "store.add_to_cart": {
+    en: "Add to Cart",
+    es: "Añadir al Carrito",
+  },
   "store.product.addToCart": {
     en: "Add to Cart",
     es: "Añadir al Carrito",

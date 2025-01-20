@@ -1,5 +1,6 @@
 "use client";
 
+import { useCart } from "@/components/cart-provider";
 import { ChatBot } from "@/components/chat-bot";
 import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
@@ -11,15 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { translateProducts } from "@/lib/translation-service";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -33,18 +27,13 @@ interface Product {
   imageUrl?: string;
 }
 
-interface CartItem extends Product {
-  quantity: number;
-}
-
 function StoreContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { t, language } = useTranslation();
+  const { addToCart } = useCart();
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const type = searchParams.get("type");
@@ -92,39 +81,6 @@ function StoreContent() {
     setFilteredProducts(filtered);
   }, [products, category, type]);
 
-  const addToCart = (product: Product) => {
-    setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return currentCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
-      return [...currentCart, { ...product, quantity: 1 }];
-    });
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCart((currentCart) =>
-      currentCart.filter((item) => item.id !== productId),
-    );
-  };
-
-  const updateQuantity = (productId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCart((currentCart) =>
-      currentCart.map((item) =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item,
-      ),
-    );
-  };
-
-  const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -157,78 +113,6 @@ function StoreContent() {
             </p>
           )}
         </div>
-        <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="relative">
-              <span className="mr-2">{t("store.cart")}</span>
-              <span className="bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
-                {cart.reduce((total, item) => total + item.quantity, 0)}
-              </span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>{t("store.cart")}</SheetTitle>
-              <SheetDescription>{t("store.cart.description")}</SheetDescription>
-            </SheetHeader>
-            <div className="mt-8">
-              {cart.length === 0 ? (
-                <p>{t("store.cart.empty")}</p>
-              ) : (
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <Card key={item.id} className="p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            ${item.price.toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
-                          >
-                            -
-                          </Button>
-                          <span>{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                          >
-                            +
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            {t("store.cart.remove")}
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                  <div className="pt-4 border-t">
-                    <p className="font-medium text-lg">
-                      {t("store.cart.total")}: ${getTotalPrice().toFixed(2)}
-                    </p>
-                    <Button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                      {t("store.cart.checkout")}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,73 +133,54 @@ function StoreContent() {
                 )}
                 {product.name}
               </CardTitle>
-              <CardDescription className="flex items-center gap-2">
-                <span
-                  className={`inline-block w-2 h-2 rounded-full ${
-                    product.type === "Sacred Geometry"
-                      ? "bg-purple-500"
-                      : "bg-pink-500"
-                  }`}
-                />
-                {t(`store.category.${product.type.toLowerCase()}`)}
-              </CardDescription>
+              <CardDescription>{product.type}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-                {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-110 duration-500"
-                  />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={
-                      product.type === "Sacred Geometry"
-                        ? `/products/sacred-geometry.svg#${product.id}`
-                        : "/products/flower-essence.svg"
-                    }
-                    alt={product.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-110 duration-500"
-                  />
-                )}
-              </div>
-              <p className="text-muted-foreground grow-animation">
-                {product.description}
-              </p>
-              {product.stock <= 5 && product.stock > 0 && (
-                <p className="text-yellow-600 dark:text-yellow-400 mt-2 text-sm">
-                  Only {product.stock} left in stock!
-                </p>
+              {product.imageUrl ? (
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  width={400}
+                  height={400}
+                  className="w-full aspect-square object-cover rounded-lg mb-4"
+                  priority
+                />
+              ) : (
+                <Image
+                  src={
+                    product.type === "Sacred Geometry"
+                      ? `/products/sacred-geometry.svg#${product.id}`
+                      : "/products/flower-essence.svg"
+                  }
+                  alt={product.name}
+                  width={400}
+                  height={400}
+                  className="w-full aspect-square object-cover rounded-lg mb-4"
+                  priority
+                />
               )}
-              {product.stock <= 0 && (
-                <p className="text-red-500 mt-2 text-sm">Out of stock</p>
-              )}
+              <p className="text-muted-foreground">{product.description}</p>
             </CardContent>
             <CardFooter className="flex justify-between items-center">
-              <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              <span className="text-2xl font-bold text-primary">
                 ${product.price.toFixed(2)}
-              </p>
-              <Button
-                onClick={() => addToCart(product)}
-                disabled={product.stock <= 0}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                {t("store.product.addToCart")}
+              </span>
+              <Button onClick={() => addToCart(product)}>
+                {t("store.add_to_cart")}
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
+
+      <ChatBot />
     </>
   );
 }
 
 export default function StorePage() {
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto px-4 py-8">
       <Suspense
         fallback={
           <div className="flex justify-center items-center min-h-[50vh]">
@@ -325,7 +190,6 @@ export default function StorePage() {
       >
         <StoreContent />
       </Suspense>
-      <ChatBot />
     </div>
   );
 }
