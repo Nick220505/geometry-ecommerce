@@ -1,10 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("Missing GEMINI_API_KEY environment variable");
+if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+  throw new Error("Missing NEXT_PUBLIC_GEMINI_API_KEY environment variable");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 const SYSTEM_PROMPT = `You are a helpful shopping assistant for a store that sells Sacred Geometry items and Bach Flower Remedies. Here are the products available:
 

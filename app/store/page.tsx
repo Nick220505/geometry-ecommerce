@@ -77,7 +77,9 @@ function StoreContent() {
     let filtered = [...products];
 
     if (category) {
-      filtered = filtered.filter((product) => product.type === category);
+      filtered = filtered.filter(
+        (product) => product.type.toLowerCase() === category.toLowerCase(),
+      );
     }
 
     if (type) {
@@ -253,7 +255,7 @@ function StoreContent() {
                       : "bg-pink-500"
                   }`}
                 />
-                {product.type}
+                {t(`store.category.${product.type.toLowerCase()}`)}
               </CardDescription>
             </CardHeader>
             <CardContent>

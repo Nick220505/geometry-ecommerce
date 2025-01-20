@@ -21,25 +21,29 @@ interface Product {
 export async function translateText(
   text: string,
   targetLanguage: string = "es",
+  forceGoogleTranslate: boolean = false,
 ): Promise<string> {
-  // First check if we have a static translation
-  const translationKey = Object.keys(translations).find(
-    (key) => translations[key].en === text || translations[key].es === text,
-  );
+  // If forceGoogleTranslate is true, skip static translations
+  if (!forceGoogleTranslate) {
+    // First check if we have a static translation
+    const translationKey = Object.keys(translations).find(
+      (key) => translations[key].en === text || translations[key].es === text,
+    );
 
-  if (translationKey) {
-    return translations[translationKey][targetLanguage as "en" | "es"];
+    if (translationKey) {
+      return translations[translationKey][targetLanguage as "en" | "es"];
+    }
   }
 
-  // If no static translation found, use Google Translate API
+  // Use Google Translate API
   try {
-    if (!process.env.GOOGLE_TRANSLATE_API_KEY) {
-      console.warn("Missing GOOGLE_TRANSLATE_API_KEY");
+    if (!process.env.NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY) {
+      console.warn("Missing NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY");
       return text;
     }
 
     const response = await fetch(
-      `https://translation.googleapis.com/language/translate/v2?key=${process.env.GOOGLE_TRANSLATE_API_KEY}`,
+      `https://translation.googleapis.com/language/translate/v2?key=${process.env.NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -74,20 +78,20 @@ export async function translateProduct(
   const translatedProduct = { ...product };
 
   try {
-    // Translate name and description
-    translatedProduct.name = await translateText(product.name, targetLanguage);
+    // Always use Google Translate for product names and descriptions
+    translatedProduct.name = await translateText(
+      product.name,
+      targetLanguage,
+      true,
+    );
     translatedProduct.description = await translateText(
       product.description,
       targetLanguage,
+      true,
     );
 
-    // Translate type if needed
-    if (product.type) {
-      translatedProduct.type = await translateText(
-        product.type,
-        targetLanguage,
-      );
-    }
+    // Keep the original type
+    // Do not translate type as it's used for filtering
   } catch (error) {
     console.error("Error translating product:", error);
   }
