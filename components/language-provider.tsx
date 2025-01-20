@@ -272,6 +272,114 @@ export const translations: Translations = {
     en: "Filtering by",
     es: "Filtrando por",
   },
+  "admin.title": {
+    en: "Product Management",
+    es: "Gestión de Productos",
+  },
+  "admin.add_product": {
+    en: "Add Product",
+    es: "Añadir Producto",
+  },
+  "admin.add_new_product": {
+    en: "Add New Product",
+    es: "Añadir Nuevo Producto",
+  },
+  "admin.edit_product": {
+    en: "Edit Product",
+    es: "Editar Producto",
+  },
+  "admin.product_name": {
+    en: "Product Name",
+    es: "Nombre del Producto",
+  },
+  "admin.description": {
+    en: "Description",
+    es: "Descripción",
+  },
+  "admin.type": {
+    en: "Type",
+    es: "Tipo",
+  },
+  "admin.price": {
+    en: "Price",
+    es: "Precio",
+  },
+  "admin.stock": {
+    en: "Stock",
+    es: "Existencias",
+  },
+  "admin.product_image": {
+    en: "Product Image",
+    es: "Imagen del Producto",
+  },
+  "admin.uploading_image": {
+    en: "Uploading image...",
+    es: "Subiendo imagen...",
+  },
+  "admin.product_preview": {
+    en: "Product preview",
+    es: "Vista previa del producto",
+  },
+  "admin.adding": {
+    en: "Adding...",
+    es: "Añadiendo...",
+  },
+  "admin.add": {
+    en: "Add Product",
+    es: "Añadir Producto",
+  },
+  "admin.image": {
+    en: "Image",
+    es: "Imagen",
+  },
+  "admin.name": {
+    en: "Name",
+    es: "Nombre",
+  },
+  "admin.actions": {
+    en: "Actions",
+    es: "Acciones",
+  },
+  "admin.edit": {
+    en: "Edit",
+    es: "Editar",
+  },
+  "admin.delete": {
+    en: "Delete",
+    es: "Eliminar",
+  },
+  "admin.delete_confirm": {
+    en: "Are you sure you want to delete this product?",
+    es: "¿Está seguro de que desea eliminar este producto?",
+  },
+  "admin.error.failed_load": {
+    en: "Failed to load products",
+    es: "Error al cargar los productos",
+  },
+  "admin.error.failed_add": {
+    en: "Failed to add product",
+    es: "Error al añadir el producto",
+  },
+  "admin.error.failed_update": {
+    en: "Failed to update product",
+    es: "Error al actualizar el producto",
+  },
+  "admin.error.failed_delete": {
+    en: "Failed to delete product",
+    es: "Error al eliminar el producto",
+  },
+  "admin.error.failed_upload": {
+    en: "Failed to upload image",
+    es: "Error al subir la imagen",
+  },
+  "store.loading": {
+    en: "Loading...",
+    es: "Cargando...",
+  },
+  "store.error.failed_load": {
+    en: "Failed to load products",
+    es: "Error al cargar los productos",
+  },
 };
 
 interface LanguageContextType {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getChatResponse } from "@/lib/gemini";
 import { MessageCircle, Minus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -53,6 +55,7 @@ export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t, language } = useTranslation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,45 +69,55 @@ export function ChatBot() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage = input.trim();
+    const userMessage = input;
     setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
-    // Add user message to chat
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
-
     try {
-      // Get response from API
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          history: messages,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
+      // First translate user message to English if in Spanish
+      let processedMessage = userMessage;
+      if (language === "es") {
+        const response = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: userMessage, targetLanguage: "en" }),
+        });
+        const data = await response.json();
+        if (data.translatedText) {
+          processedMessage = data.translatedText;
+        }
       }
 
-      const data = await response.json();
+      // Get response from chatbot
+      const chatResponse = await getChatResponse(processedMessage, messages);
 
-      // Add assistant response to chat
+      // Translate response back to Spanish if needed
+      let finalResponse = chatResponse;
+      if (language === "es") {
+        const response = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: chatResponse, targetLanguage: "es" }),
+        });
+        const data = await response.json();
+        if (data.translatedText) {
+          finalResponse = data.translatedText;
+        }
+      }
+
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.response },
+        { role: "assistant", content: finalResponse },
       ]);
     } catch (error) {
-      console.error("Error getting response:", error);
+      console.error("Error in chat:", error);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content:
-            "I apologize, but I'm having trouble processing your request at the moment. Please try again later.",
+            t("chat.error") || "I'm having trouble responding right now.",
         },
       ]);
     } finally {

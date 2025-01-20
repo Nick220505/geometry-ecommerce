@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
+  const { t } = useTranslation();
 
   // Fetch products
   const fetchProducts = async () => {
@@ -145,7 +147,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    if (!confirm(t("admin.delete_confirm"))) return;
 
     try {
       const response = await fetch(`/api/products/${id}`, {
@@ -154,14 +156,14 @@ export default function AdminDashboard() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to delete product");
+        throw new Error(data.error || t("admin.error.failed_delete"));
       }
 
       await fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to delete product",
+        error instanceof Error ? error.message : t("admin.error.failed_delete"),
       );
     }
   };
@@ -215,18 +217,18 @@ export default function AdminDashboard() {
     <div className="p-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Product Management</CardTitle>
+          <CardTitle>{t("admin.title")}</CardTitle>
           <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
             <DialogTrigger asChild>
-              <Button>Add Product</Button>
+              <Button>{t("admin.add_product")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
+                <DialogTitle>{t("admin.add_new_product")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleAddProduct} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="name">Product Name</label>
+                  <label htmlFor="name">{t("admin.product_name")}</label>
                   <Input
                     id="name"
                     value={newProduct.name}
@@ -237,7 +239,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="description">Description</label>
+                  <label htmlFor="description">{t("admin.description")}</label>
                   <Textarea
                     id="description"
                     value={newProduct.description}
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="type">Type</label>
+                  <label htmlFor="type">{t("admin.type")}</label>
                   <Input
                     id="type"
                     value={newProduct.type}
@@ -262,7 +264,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="price">Price</label>
+                  <label htmlFor="price">{t("admin.price")}</label>
                   <Input
                     id="price"
                     type="number"
@@ -275,7 +277,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="stock">Stock</label>
+                  <label htmlFor="stock">{t("admin.stock")}</label>
                   <Input
                     id="stock"
                     type="number"
@@ -287,7 +289,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="image">Product Image</label>
+                  <label htmlFor="image">{t("admin.product_image")}</label>
                   <Input
                     id="image"
                     type="file"
@@ -297,14 +299,14 @@ export default function AdminDashboard() {
                   />
                   {uploadingImage && (
                     <p className="text-sm text-muted-foreground">
-                      Uploading image...
+                      {t("admin.uploading_image")}
                     </p>
                   )}
                   {newProduct.imageUrl && (
                     <div className="mt-2">
                       <Image
                         src={newProduct.imageUrl}
-                        alt="Product preview"
+                        alt={t("admin.product_preview")}
                         width={128}
                         height={128}
                         className="w-32 h-32 object-cover rounded-lg"
@@ -318,7 +320,7 @@ export default function AdminDashboard() {
                   className="w-full"
                   disabled={isLoading || uploadingImage}
                 >
-                  {isLoading ? "Adding..." : "Add Product"}
+                  {isLoading ? t("admin.adding") : t("admin.add")}
                 </Button>
               </form>
             </DialogContent>
@@ -329,12 +331,12 @@ export default function AdminDashboard() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("admin.image")}</TableHead>
+                <TableHead>{t("admin.name")}</TableHead>
+                <TableHead>{t("admin.type")}</TableHead>
+                <TableHead>{t("admin.price")}</TableHead>
+                <TableHead>{t("admin.stock")}</TableHead>
+                <TableHead>{t("admin.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -383,12 +385,12 @@ export default function AdminDashboard() {
                           size="sm"
                           onClick={() => setEditingProduct(product)}
                         >
-                          Edit
+                          {t("admin.edit")}
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Edit Product</DialogTitle>
+                          <DialogTitle>{t("admin.edit_product")}</DialogTitle>
                         </DialogHeader>
                         {editingProduct && (
                           <form
@@ -396,7 +398,9 @@ export default function AdminDashboard() {
                             className="space-y-4"
                           >
                             <div className="space-y-2">
-                              <label htmlFor="edit-name">Product Name</label>
+                              <label htmlFor="edit-name">
+                                {t("admin.product_name")}
+                              </label>
                               <Input
                                 id="edit-name"
                                 value={editingProduct.name}
@@ -411,7 +415,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="space-y-2">
                               <label htmlFor="edit-description">
-                                Description
+                                {t("admin.description")}
                               </label>
                               <Textarea
                                 id="edit-description"
@@ -426,7 +430,9 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label htmlFor="edit-type">Type</label>
+                              <label htmlFor="edit-type">
+                                {t("admin.type")}
+                              </label>
                               <Input
                                 id="edit-type"
                                 value={editingProduct.type}
@@ -440,7 +446,9 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label htmlFor="edit-price">Price</label>
+                              <label htmlFor="edit-price">
+                                {t("admin.price")}
+                              </label>
                               <Input
                                 id="edit-price"
                                 type="number"
@@ -456,7 +464,9 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label htmlFor="edit-stock">Stock</label>
+                              <label htmlFor="edit-stock">
+                                {t("admin.stock")}
+                              </label>
                               <Input
                                 id="edit-stock"
                                 type="number"
@@ -471,7 +481,9 @@ export default function AdminDashboard() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label htmlFor="edit-image">Product Image</label>
+                              <label htmlFor="edit-image">
+                                {t("admin.product_image")}
+                              </label>
                               <Input
                                 id="edit-image"
                                 type="file"
@@ -481,14 +493,14 @@ export default function AdminDashboard() {
                               />
                               {uploadingImage && (
                                 <p className="text-sm text-muted-foreground">
-                                  Uploading image...
+                                  {t("admin.uploading_image")}
                                 </p>
                               )}
                               {editingProduct.imageUrl && (
                                 <div className="mt-2">
                                   <Image
                                     src={editingProduct.imageUrl}
-                                    alt="Product preview"
+                                    alt={t("admin.product_preview")}
                                     width={128}
                                     height={128}
                                     className="w-32 h-32 object-cover rounded-lg"
@@ -504,7 +516,7 @@ export default function AdminDashboard() {
                               className="w-full"
                               disabled={isLoading || uploadingImage}
                             >
-                              {isLoading ? "Saving..." : "Save Changes"}
+                              {isLoading ? t("admin.adding") : t("admin.edit")}
                             </Button>
                           </form>
                         )}
@@ -515,7 +527,7 @@ export default function AdminDashboard() {
                       size="sm"
                       onClick={() => handleDeleteProduct(product.id)}
                     >
-                      Delete
+                      {t("admin.delete")}
                     </Button>
                   </TableCell>
                 </TableRow>

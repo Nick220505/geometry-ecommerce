@@ -18,6 +18,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { translateProducts } from "@/lib/translation-service";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -40,32 +41,37 @@ function StoreContent() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const type = searchParams.get("type");
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
+      setError("");
       try {
         const response = await fetch("/api/products");
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
+        if (!response.ok) throw new Error(t("store.error.failed_load"));
         const data = await response.json();
-        setProducts(data);
+
+        // Translate products if language is Spanish
+        const processedProducts =
+          language === "es" ? await translateProducts(data) : data;
+
+        setProducts(processedProducts);
       } catch (error) {
-        setError("Failed to load products");
         console.error("Error fetching products:", error);
+        setError(t("store.error.failed_load"));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [language]); // Re-fetch when language changes
 
   useEffect(() => {
     let filtered = [...products];
@@ -120,6 +126,7 @@ function StoreContent() {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="rotate-slow w-20 h-20 border-4 border-primary rounded-full border-t-transparent" />
+        <p className="ml-4">{t("store.loading")}</p>
       </div>
     );
   }
@@ -127,7 +134,7 @@ function StoreContent() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <p className="text-lg text-red-500">{error}</p>
+        <p className="text-lg text-red-500">{t("store.error.failed_load")}</p>
       </div>
     );
   }
