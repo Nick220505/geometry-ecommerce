@@ -113,35 +113,35 @@ export function ChatBot() {
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 w-96 h-[600px] shadow-xl flex flex-col bg-background/80 backdrop-blur-sm border border-purple-500/20 animate-in slide-in-from-right duration-300">
-      <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
-        <h2 className="font-semibold">
+    <Card className="fixed bottom-4 right-4 w-[calc(100%-2rem)] sm:w-[350px] md:w-96 h-[500px] sm:h-[600px] shadow-xl flex flex-col bg-background/80 backdrop-blur-sm border border-purple-500/20 animate-in slide-in-from-right duration-300">
+      <div className="p-3 sm:p-4 border-b flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
+        <h2 className="font-semibold text-sm sm:text-base">
           {language === "es" ? "Asistente de Compras" : "Shopping Assistant"}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="hover:bg-white/20"
+            className="h-7 w-7 sm:h-9 sm:w-9 hover:bg-white/20"
             onClick={() => setIsOpen(false)}
           >
-            <Minimize2 className="w-4 h-4" />
+            <Minimize2 className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="hover:bg-white/20"
+            className="h-7 w-7 sm:h-9 sm:w-9 hover:bg-white/20"
             onClick={() => {
               setIsOpen(false);
               setMessages([]);
             }}
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 custom-scrollbar">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -150,20 +150,22 @@ export function ChatBot() {
             }`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-lg ${
+              className={`max-w-[85%] p-2 sm:p-3 rounded-lg text-sm ${
                 message.role === "assistant"
                   ? "bg-gray-100 dark:bg-gray-800"
                   : "bg-purple-600 text-white"
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+              <p className="whitespace-pre-wrap text-xs sm:text-sm">
+                {message.content}
+              </p>
             </div>
           </div>
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
-              <p className="text-sm">
+            <div className="max-w-[85%] p-2 sm:p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+              <p className="text-xs sm:text-sm">
                 {language === "es" ? "Escribiendo..." : "Typing..."}
               </p>
             </div>
@@ -174,7 +176,7 @@ export function ChatBot() {
 
       <form
         onSubmit={handleSubmit}
-        className="p-4 border-t bg-background/80 backdrop-blur-sm"
+        className="p-3 sm:p-4 border-t bg-background/80 backdrop-blur-sm"
       >
         <div className="flex gap-2">
           <Input
@@ -186,12 +188,12 @@ export function ChatBot() {
                 : "Type your message..."
             }
             disabled={isLoading}
-            className="border-purple-500/20 focus:border-purple-500"
+            className="border-purple-500/20 focus:border-purple-500 text-sm"
           />
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 px-3 sm:px-4"
           >
             {language === "es" ? "Enviar" : "Send"}
           </Button>
