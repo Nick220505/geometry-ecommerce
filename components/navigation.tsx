@@ -286,7 +286,7 @@ export function Navigation() {
                     {session.user.name || session.user.email}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut()}>
-                    {t("cta.signout")}
+                    {t("nav.signout")}
                   </DropdownMenuItem>
                 </>
               ) : (

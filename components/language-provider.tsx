@@ -396,6 +396,10 @@ export const translations: Translations = {
     en: "Edit the selected product's details including name, description, price, and image",
     es: "Edita los detalles del producto seleccionado incluyendo nombre, descripción, precio e imagen",
   },
+  "nav.signout": {
+    en: "Sign Out",
+    es: "Cerrar Sesión",
+  },
 };
 
 interface LanguageContextType {
