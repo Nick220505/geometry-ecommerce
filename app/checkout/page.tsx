@@ -2,48 +2,94 @@
 
 import { useCart } from "@/components/cart-provider";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import Link from "next/link";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
 );
 
+const SHIPPING_COST = 13.0;
+
+// Zod validation schema
+const checkoutSchema = z.object({
+  // Billing Information
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
+  documentId: z.string().min(5, "Document ID must be at least 5 characters"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  city: z.string().min(2, "City must be at least 2 characters"),
+  state: z.string().min(2, "State must be at least 2 characters"),
+  country: z.string().min(2, "Please select a country"),
+  postalCode: z.string().min(3, "Postal code must be at least 3 characters"),
+  // Shipping Information (optional based on differentShippingAddress)
+  shippingFirstName: z.string().optional(),
+  shippingLastName: z.string().optional(),
+  shippingAddress: z.string().optional(),
+  shippingCity: z.string().optional(),
+  shippingState: z.string().optional(),
+  shippingCountry: z.string().optional(),
+  shippingPostalCode: z.string().optional(),
+  // Additional Information
+  orderNotes: z.string().optional(),
+  acceptedTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions",
+  }),
+});
+
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
+
 export default function CheckoutPage() {
   const { total, cart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState("card");
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    address: "",
-    city: "",
-    country: "",
-    postalCode: "",
+  const [differentShippingAddress, setDifferentShippingAddress] =
+    useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      acceptedTerms: false,
+    },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission based on payment method
+  const onSubmit = async (data: CheckoutFormData) => {
     if (paymentMethod === "card") {
       // Handle Stripe payment
+      console.log("Form data:", data);
     } else if (paymentMethod === "paypal") {
       // PayPal is handled by PayPal buttons
     }
   };
+
+  // Calculate totals
+  const subtotal = parseFloat(total);
+  const finalTotal = subtotal + SHIPPING_COST;
 
   // Don't show checkout if cart is empty
   if (!cart || cart.length === 0) {
@@ -60,198 +106,372 @@ export default function CheckoutPage() {
     );
   }
 
-  const safeTotal = total || "0.00";
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Shipping Information</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Billing & Shipping Information */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold">Billing Information</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    {...register("firstName")}
+                    className={errors.firstName ? "border-red-500" : ""}
+                  />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.firstName.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    {...register("lastName")}
+                    className={errors.lastName ? "border-red-500" : ""}
+                  />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.lastName.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               <div>
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="documentId">Document ID / Passport *</Label>
                 <Input
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
+                  id="documentId"
+                  {...register("documentId")}
+                  className={errors.documentId ? "border-red-500" : ""}
+                />
+                {errors.documentId && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.documentId.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  className={errors.email ? "border-red-500" : ""}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="phone">Phone *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  {...register("phone")}
+                  className={errors.phone ? "border-red-500" : ""}
+                />
+                {errors.phone && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.phone.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="address">Address *</Label>
+                <Input
+                  id="address"
+                  {...register("address")}
+                  className={errors.address ? "border-red-500" : ""}
+                />
+                {errors.address && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.address.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="country">Country *</Label>
+                  <Select onValueChange={(value) => setValue("country", value)}>
+                    <SelectTrigger
+                      className={errors.country ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CO">Colombia</SelectItem>
+                      {/* Add more countries as needed */}
+                    </SelectContent>
+                  </Select>
+                  {errors.country && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.country.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="state">State/Department *</Label>
+                  <Select onValueChange={(value) => setValue("state", value)}>
+                    <SelectTrigger
+                      className={errors.state ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Select state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BOG">Bogotá</SelectItem>
+                      {/* Add more states as needed */}
+                    </SelectContent>
+                  </Select>
+                  {errors.state && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.state.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city">City *</Label>
+                  <Input
+                    id="city"
+                    {...register("city")}
+                    className={errors.city ? "border-red-500" : ""}
+                  />
+                  {errors.city && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.city.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="postalCode">Postal Code *</Label>
+                  <Input
+                    id="postalCode"
+                    {...register("postalCode")}
+                    className={errors.postalCode ? "border-red-500" : ""}
+                  />
+                  {errors.postalCode && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.postalCode.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="differentShipping"
+                  checked={differentShippingAddress}
+                  onCheckedChange={(checked: boolean) =>
+                    setDifferentShippingAddress(checked)
+                  }
+                />
+                <label
+                  htmlFor="differentShipping"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Ship to a different address?
+                </label>
+              </div>
+
+              {differentShippingAddress && (
+                <div className="space-y-4 mt-4 p-4 border rounded-lg">
+                  <h3 className="font-medium">Shipping Address</h3>
+                  {/* Add shipping address fields with their own validation */}
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="orderNotes">Order Notes (optional)</Label>
+                <Textarea
+                  id="orderNotes"
+                  {...register("orderNotes")}
+                  placeholder="Notes about your order, e.g. special notes for delivery"
+                  className="h-24"
                 />
               </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="terms"
+                    {...register("acceptedTerms")}
+                    className={errors.acceptedTerms ? "border-red-500" : ""}
+                  />
+                  <label htmlFor="terms" className="text-sm leading-none">
+                    I have read and agree to the{" "}
+                    <Link
+                      href="/terms"
+                      className="text-primary hover:underline"
+                    >
+                      terms and conditions
+                    </Link>
+                    *
+                  </label>
+                </div>
+                {errors.acceptedTerms && (
+                  <p className="text-sm text-red-500">
+                    {errors.acceptedTerms.message}
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={paymentMethod === "paypal"}
+                >
+                  {paymentMethod === "card"
+                    ? "Pay Now"
+                    : "Select Payment Method"}
+                </Button>
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="postalCode">Postal Code</Label>
-                <Input
-                  id="postalCode"
-                  name="postalCode"
-                  value={formData.postalCode}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="country">Country</Label>
-              <Input
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Payment Method</h2>
-          <RadioGroup
-            defaultValue="card"
-            onValueChange={(value: string) => setPaymentMethod(value)}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="card" id="card" />
-              <Label htmlFor="card">Credit Card</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="paypal" id="paypal" />
-              <Label htmlFor="paypal">PayPal</Label>
-            </div>
-          </RadioGroup>
+        {/* Order Summary */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Your Order</h2>
 
-          {paymentMethod === "paypal" && (
-            <PayPalScriptProvider
-              options={{
-                clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
-                currency: "USD",
-              }}
-            >
-              <PayPalButtons
-                createOrder={(data, actions) => {
-                  return actions.order.create({
-                    intent: "CAPTURE",
-                    purchase_units: [
-                      {
-                        amount: {
-                          currency_code: "USD",
-                          value: safeTotal,
-                        },
-                      },
-                    ],
-                    payer: {
-                      email_address: formData.email,
-                      name: {
-                        given_name: formData.firstName,
-                        surname: formData.lastName,
-                      },
-                      address: {
-                        address_line_1: formData.address,
-                        admin_area_2: formData.city,
-                        postal_code: formData.postalCode,
-                        country_code: formData.country,
-                      },
-                    },
-                  });
-                }}
-                onApprove={async (data, actions) => {
-                  if (actions.order) {
-                    return actions.order.capture().then((details) => {
-                      // Handle successful payment
-                      console.log("Payment completed:", details);
-                      // Here you would typically:
-                      // 1. Update your database
-                      // 2. Clear the cart
-                      // 3. Show a success message
-                      // 4. Redirect to a success page
-                    });
-                  }
-                }}
-              />
-            </PayPalScriptProvider>
-          )}
-
-          {paymentMethod === "card" && (
-            <Elements stripe={stripePromise}>
-              {/* Stripe Card Element will go here */}
-              <div className="p-4 border rounded">
-                <p className="text-sm text-gray-500">
-                  Stripe integration will be implemented here
-                </p>
+            <div className="space-y-4">
+              <div className="border-b pb-4">
+                <div className="flex justify-between text-sm font-medium">
+                  <span>Product</span>
+                  <span>Subtotal</span>
+                </div>
               </div>
-            </Elements>
-          )}
 
-          <div className="border-t pt-4 mt-6">
-            <div className="flex justify-between mb-2">
-              <span>Subtotal</span>
-              <span>${safeTotal}</span>
+              {cart.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center py-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm">{item.name}</span>
+                    <span className="text-sm text-gray-500">
+                      × {item.quantity}
+                    </span>
+                  </div>
+                  <span className="text-sm">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span>${SHIPPING_COST.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>${finalTotal.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between mb-2">
-              <span>Shipping</span>
-              <span>Free</span>
-            </div>
-            <div className="flex justify-between font-bold">
-              <span>Total</span>
-              <span>${safeTotal}</span>
+
+            <div className="mt-6 space-y-4">
+              <h3 className="font-semibold">Payment Method</h3>
+              <RadioGroup
+                defaultValue="card"
+                onValueChange={(value: string) => setPaymentMethod(value)}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="card" id="card" />
+                  <Label htmlFor="card">Credit Card</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="paypal" id="paypal" />
+                  <Label htmlFor="paypal">PayPal</Label>
+                </div>
+              </RadioGroup>
+
+              {paymentMethod === "paypal" && (
+                <PayPalScriptProvider
+                  options={{
+                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
+                    currency: "USD",
+                  }}
+                >
+                  <PayPalButtons
+                    createOrder={(_, actions) => {
+                      const formData = watch(); // Get current form values
+                      return actions.order.create({
+                        intent: "CAPTURE",
+                        purchase_units: [
+                          {
+                            amount: {
+                              currency_code: "USD",
+                              value: finalTotal.toFixed(2),
+                            },
+                          },
+                        ],
+                        payer: formData.email
+                          ? {
+                              email_address: formData.email,
+                              name: {
+                                given_name: formData.firstName,
+                                surname: formData.lastName,
+                              },
+                              address: {
+                                address_line_1: formData.address,
+                                admin_area_2: formData.city,
+                                postal_code: formData.postalCode,
+                                country_code: formData.country,
+                              },
+                            }
+                          : undefined,
+                      });
+                    }}
+                    onApprove={async (data, actions) => {
+                      if (actions.order) {
+                        return actions.order.capture().then((details) => {
+                          // Handle successful payment
+                          console.log("Payment completed:", details);
+                          // Here you would typically:
+                          // 1. Update your database
+                          // 2. Clear the cart
+                          // 3. Show a success message
+                          // 4. Redirect to a success page
+                        });
+                      }
+                    }}
+                  />
+                </PayPalScriptProvider>
+              )}
+
+              {paymentMethod === "card" && (
+                <Elements stripe={stripePromise}>
+                  {/* Stripe Card Element will go here */}
+                  <div className="p-4 border rounded">
+                    <p className="text-sm text-gray-500">
+                      Stripe integration will be implemented here
+                    </p>
+                  </div>
+                </Elements>
+              )}
             </div>
           </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={paymentMethod === "paypal"}
-          >
-            {paymentMethod === "card" ? "Pay Now" : "Select Payment Method"}
-          </Button>
         </div>
       </div>
     </div>
