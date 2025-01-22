@@ -169,8 +169,8 @@ function StoreContent() {
                 {product.description}
               </p>
             </CardContent>
-            <CardFooter className="flex justify-between items-center p-3 sm:p-4 md:p-6">
-              <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
+            <CardFooter className="flex flex-col xs:flex-row justify-center xs:justify-between items-center p-3 sm:p-4 md:p-6 gap-2 xs:gap-0">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary text-center xs:text-left">
                 ${product.price.toFixed(2)}
               </span>
               <Button size="sm" onClick={() => addToCart(product)}>
