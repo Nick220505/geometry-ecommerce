@@ -115,7 +115,7 @@ function StoreContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {filteredProducts.map((product, index) => (
           <Card
             key={product.id}
@@ -124,25 +124,31 @@ function StoreContent() {
               animationDelay: `${index * 100}ms`,
             }}
           >
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
                 {product.type === "Sacred Geometry" ? (
-                  <span className="text-2xl rotate-slow inline-block">⬡</span>
+                  <span className="text-xl sm:text-2xl rotate-slow inline-block">
+                    ⬡
+                  </span>
                 ) : (
-                  <span className="text-2xl float inline-block">🌸</span>
+                  <span className="text-xl sm:text-2xl float inline-block">
+                    🌸
+                  </span>
                 )}
                 {product.name}
               </CardTitle>
-              <CardDescription>{product.type}</CardDescription>
+              <CardDescription className="text-sm">
+                {product.type}
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-4 md:p-6">
               {product.imageUrl ? (
                 <Image
                   src={product.imageUrl}
                   alt={product.name}
                   width={400}
                   height={400}
-                  className="w-full aspect-square object-cover rounded-lg mb-4"
+                  className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
                   priority
                 />
               ) : (
@@ -155,17 +161,19 @@ function StoreContent() {
                   alt={product.name}
                   width={400}
                   height={400}
-                  className="w-full aspect-square object-cover rounded-lg mb-4"
+                  className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
                   priority
                 />
               )}
-              <p className="text-muted-foreground">{product.description}</p>
+              <p className="text-muted-foreground text-sm">
+                {product.description}
+              </p>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <span className="text-2xl font-bold text-primary">
+            <CardFooter className="flex justify-between items-center p-3 sm:p-4 md:p-6">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
                 ${product.price.toFixed(2)}
               </span>
-              <Button onClick={() => addToCart(product)}>
+              <Button size="sm" onClick={() => addToCart(product)}>
                 {t("store.add_to_cart")}
               </Button>
             </CardFooter>
