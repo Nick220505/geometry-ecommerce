@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { getChatResponse } from "@/lib/gemini";
 import { MessageCircle, Minimize2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -156,9 +157,9 @@ export function ChatBot() {
                   : "bg-purple-600 text-white"
               }`}
             >
-              <p className="whitespace-pre-wrap text-xs sm:text-sm">
+              <ReactMarkdown className="whitespace-pre-wrap text-xs sm:text-sm prose dark:prose-invert max-w-none prose-sm">
                 {message.content}
-              </p>
+              </ReactMarkdown>
             </div>
           </div>
         ))}
