@@ -25,9 +25,11 @@ import { Menu } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function Navigation() {
+  const router = useRouter();
   const { t } = useTranslation();
   const {
     cart,
@@ -40,6 +42,11 @@ export function Navigation() {
   } = useCart();
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleCheckout = () => {
+    setIsCartOpen(false); // Close the cart sheet
+    router.push("/checkout"); // Redirect to checkout page
+  };
 
   const NavigationItems = () => (
     <>
@@ -160,11 +167,16 @@ export function Navigation() {
         <div className="flex items-center space-x-4">
           <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" className="relative">
-                <span className="mr-2 hidden sm:inline">Cart</span>
-                <span className="bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-primary text-xs text-primary-foreground flex items-center justify-center">
                   {getTotalItems()}
                 </span>
+                🛒
               </Button>
             </SheetTrigger>
             <SheetContent className="fixed top-0 right-0 h-full border-l bg-background/80 backdrop-blur-sm">
@@ -250,7 +262,10 @@ export function Navigation() {
                       <p className="font-medium text-lg">
                         {t("store.cart.total")}: ${getTotalPrice().toFixed(2)}
                       </p>
-                      <Button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                      <Button
+                        onClick={handleCheckout}
+                        className="w-full mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      >
                         {t("store.cart.checkout")}
                       </Button>
                     </div>
