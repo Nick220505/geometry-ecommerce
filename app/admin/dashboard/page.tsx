@@ -32,6 +32,51 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+function TableSkeleton() {
+  const { t } = useTranslation();
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t("admin.image")}</TableHead>
+          <TableHead>{t("admin.name")}</TableHead>
+          <TableHead>{t("admin.type")}</TableHead>
+          <TableHead>{t("admin.price")}</TableHead>
+          <TableHead>{t("admin.stock")}</TableHead>
+          <TableHead>{t("admin.actions")}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {[...Array(5)].map((_, index) => (
+          <TableRow key={index}>
+            <TableCell>
+              <div className="w-16 h-16 rounded-lg bg-gray-200 animate-pulse" />
+            </TableCell>
+            <TableCell>
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            </TableCell>
+            <TableCell>
+              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+            </TableCell>
+            <TableCell>
+              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+            </TableCell>
+            <TableCell>
+              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+            </TableCell>
+            <TableCell>
+              <div className="flex space-x-2">
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
 interface Product {
   id: string;
   name: string;
@@ -66,6 +111,7 @@ export default function AdminDashboard() {
 
   // Fetch products
   const fetchProducts = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("/api/products");
       if (!response.ok) throw new Error("Failed to fetch products");
@@ -74,6 +120,8 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error fetching products:", error);
       setError("Failed to load products");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -350,225 +398,231 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("admin.image")}</TableHead>
-                <TableHead>{t("admin.name")}</TableHead>
-                <TableHead>{t("admin.type")}</TableHead>
-                <TableHead>{t("admin.price")}</TableHead>
-                <TableHead>{t("admin.stock")}</TableHead>
-                <TableHead>{t("admin.actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    {product.imageUrl ? (
-                      <Image
-                        src={product.imageUrl}
-                        alt={product.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                    ) : (
-                      <Image
-                        src={
-                          product.type === "Sacred Geometry"
-                            ? `/products/sacred-geometry.svg#${product.id}`
-                            : "/products/flower-essence.svg"
-                        }
-                        alt={product.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.type}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell className="space-x-2">
-                    <Dialog
-                      open={
-                        isEditProductOpen && editingProduct?.id === product.id
-                      }
-                      onOpenChange={(open) => {
-                        setIsEditProductOpen(open);
-                        if (!open) setEditingProduct(null);
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingProduct(product)}
-                        >
-                          {t("admin.edit")}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{t("admin.edit_product")}</DialogTitle>
-                          <DialogDescription>
-                            {t("admin.edit_product_description")}
-                          </DialogDescription>
-                        </DialogHeader>
-                        {editingProduct && (
-                          <form
-                            onSubmit={handleEditProduct}
-                            className="space-y-4"
-                          >
-                            <div className="space-y-2">
-                              <label htmlFor="edit-name">
-                                {t("admin.product_name")}
-                              </label>
-                              <Input
-                                id="edit-name"
-                                value={editingProduct.name}
-                                onChange={(e) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    name: e.target.value,
-                                  })
-                                }
-                                required
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <label htmlFor="edit-description">
-                                {t("admin.description")}
-                              </label>
-                              <Textarea
-                                id="edit-description"
-                                value={editingProduct.description}
-                                onChange={(e) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    description: e.target.value,
-                                  })
-                                }
-                                required
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <label htmlFor="edit-type">
-                                {t("admin.type")}
-                              </label>
-                              <Select
-                                value={editingProduct.type}
-                                onValueChange={(value) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    type: value,
-                                  })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select product type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Flower Essence">
-                                    Flower Essence
-                                  </SelectItem>
-                                  <SelectItem value="Sacred Geometry">
-                                    Sacred Geometry
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <label htmlFor="edit-price">
-                                {t("admin.price")}
-                              </label>
-                              <Input
-                                id="edit-price"
-                                type="number"
-                                step="0.01"
-                                value={editingProduct.price}
-                                onChange={(e) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    price: parseFloat(e.target.value),
-                                  })
-                                }
-                                required
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <label htmlFor="edit-stock">
-                                {t("admin.stock")}
-                              </label>
-                              <Input
-                                id="edit-stock"
-                                type="number"
-                                value={editingProduct.stock}
-                                onChange={(e) =>
-                                  setEditingProduct({
-                                    ...editingProduct,
-                                    stock: parseInt(e.target.value),
-                                  })
-                                }
-                                required
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <label htmlFor="edit-image">
-                                {t("admin.product_image")}
-                              </label>
-                              <Input
-                                id="edit-image"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleImageUpload(e, true)}
-                                disabled={uploadingImage}
-                              />
-                              {uploadingImage && (
-                                <p className="text-sm text-muted-foreground">
-                                  {t("admin.uploading_image")}
-                                </p>
-                              )}
-                              {editingProduct.imageUrl && (
-                                <div className="mt-2">
-                                  <Image
-                                    src={editingProduct.imageUrl}
-                                    alt={t("admin.product_preview")}
-                                    width={128}
-                                    height={128}
-                                    className="w-32 h-32 object-cover rounded-lg"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            {error && (
-                              <p className="text-sm text-red-500">{error}</p>
-                            )}
-                            <Button
-                              type="submit"
-                              className="w-full"
-                              disabled={isLoading || uploadingImage}
-                            >
-                              {isLoading ? t("admin.adding") : t("admin.edit")}
-                            </Button>
-                          </form>
-                        )}
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(product)}
-                    >
-                      {t("admin.delete")}
-                    </Button>
-                  </TableCell>
+          {isLoading ? (
+            <TableSkeleton />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("admin.image")}</TableHead>
+                  <TableHead>{t("admin.name")}</TableHead>
+                  <TableHead>{t("admin.type")}</TableHead>
+                  <TableHead>{t("admin.price")}</TableHead>
+                  <TableHead>{t("admin.stock")}</TableHead>
+                  <TableHead>{t("admin.actions")}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      {product.imageUrl ? (
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <Image
+                          src={
+                            product.type === "Sacred Geometry"
+                              ? `/products/sacred-geometry.svg#${product.id}`
+                              : "/products/flower-essence.svg"
+                          }
+                          alt={product.name}
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell>{product.type}</TableCell>
+                    <TableCell>${product.price.toFixed(2)}</TableCell>
+                    <TableCell>{product.stock}</TableCell>
+                    <TableCell className="space-x-2">
+                      <Dialog
+                        open={
+                          isEditProductOpen && editingProduct?.id === product.id
+                        }
+                        onOpenChange={(open) => {
+                          setIsEditProductOpen(open);
+                          if (!open) setEditingProduct(null);
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingProduct(product)}
+                          >
+                            {t("admin.edit")}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>{t("admin.edit_product")}</DialogTitle>
+                            <DialogDescription>
+                              {t("admin.edit_product_description")}
+                            </DialogDescription>
+                          </DialogHeader>
+                          {editingProduct && (
+                            <form
+                              onSubmit={handleEditProduct}
+                              className="space-y-4"
+                            >
+                              <div className="space-y-2">
+                                <label htmlFor="edit-name">
+                                  {t("admin.product_name")}
+                                </label>
+                                <Input
+                                  id="edit-name"
+                                  value={editingProduct.name}
+                                  onChange={(e) =>
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      name: e.target.value,
+                                    })
+                                  }
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label htmlFor="edit-description">
+                                  {t("admin.description")}
+                                </label>
+                                <Textarea
+                                  id="edit-description"
+                                  value={editingProduct.description}
+                                  onChange={(e) =>
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      description: e.target.value,
+                                    })
+                                  }
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label htmlFor="edit-type">
+                                  {t("admin.type")}
+                                </label>
+                                <Select
+                                  value={editingProduct.type}
+                                  onValueChange={(value) =>
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      type: value,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select product type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Flower Essence">
+                                      Flower Essence
+                                    </SelectItem>
+                                    <SelectItem value="Sacred Geometry">
+                                      Sacred Geometry
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <label htmlFor="edit-price">
+                                  {t("admin.price")}
+                                </label>
+                                <Input
+                                  id="edit-price"
+                                  type="number"
+                                  step="0.01"
+                                  value={editingProduct.price}
+                                  onChange={(e) =>
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      price: parseFloat(e.target.value),
+                                    })
+                                  }
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label htmlFor="edit-stock">
+                                  {t("admin.stock")}
+                                </label>
+                                <Input
+                                  id="edit-stock"
+                                  type="number"
+                                  value={editingProduct.stock}
+                                  onChange={(e) =>
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      stock: parseInt(e.target.value),
+                                    })
+                                  }
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label htmlFor="edit-image">
+                                  {t("admin.product_image")}
+                                </label>
+                                <Input
+                                  id="edit-image"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageUpload(e, true)}
+                                  disabled={uploadingImage}
+                                />
+                                {uploadingImage && (
+                                  <p className="text-sm text-muted-foreground">
+                                    {t("admin.uploading_image")}
+                                  </p>
+                                )}
+                                {editingProduct.imageUrl && (
+                                  <div className="mt-2">
+                                    <Image
+                                      src={editingProduct.imageUrl}
+                                      alt={t("admin.product_preview")}
+                                      width={128}
+                                      height={128}
+                                      className="w-32 h-32 object-cover rounded-lg"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              {error && (
+                                <p className="text-sm text-red-500">{error}</p>
+                              )}
+                              <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isLoading || uploadingImage}
+                              >
+                                {isLoading
+                                  ? t("admin.adding")
+                                  : t("admin.edit")}
+                              </Button>
+                            </form>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(product)}
+                      >
+                        {t("admin.delete")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
