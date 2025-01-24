@@ -8,11 +8,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { useState } from "react";
 
-interface StripePaymentFormProps {
-  clientSecret: string;
-}
-
-export function StripePaymentForm({ clientSecret }: StripePaymentFormProps) {
+export function StripePaymentForm() {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
