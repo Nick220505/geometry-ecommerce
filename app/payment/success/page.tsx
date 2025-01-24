@@ -1,11 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useStripe } from "@stripe/react-stripe-js";
+import { Elements, useStripe } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function PaymentSuccessPage() {
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+);
+
+function PaymentStatusCheck() {
   const stripe = useStripe();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,5 +101,20 @@ export default function PaymentSuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  const searchParams = useSearchParams();
+  const clientSecret = searchParams.get("payment_intent_client_secret");
+
+  if (!clientSecret) {
+    return <PaymentStatusCheck />;
+  }
+
+  return (
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <PaymentStatusCheck />
+    </Elements>
   );
 }
