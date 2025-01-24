@@ -27,6 +27,29 @@ interface Product {
   imageUrl?: string;
 }
 
+// Skeleton component for loading state
+function ProductSkeleton() {
+  return (
+    <Card className="overflow-hidden animate-pulse">
+      <CardHeader className="p-3 sm:p-4 md:p-6">
+        <div className="h-6 bg-muted rounded w-3/4" />
+        <div className="h-4 bg-muted rounded w-1/4 mt-2" />
+      </CardHeader>
+      <CardContent className="p-3 sm:p-4 md:p-6">
+        <div className="aspect-square bg-muted rounded-lg mb-2 sm:mb-3 md:mb-4" />
+        <div className="space-y-2">
+          <div className="h-4 bg-muted rounded" />
+          <div className="h-4 bg-muted rounded w-5/6" />
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col xs:flex-row justify-center xs:justify-between items-center p-3 sm:p-4 md:p-6 gap-2 xs:gap-0">
+        <div className="h-6 bg-muted rounded w-20" />
+        <div className="h-9 bg-muted rounded w-24" />
+      </CardFooter>
+    </Card>
+  );
+}
+
 function StoreContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -81,15 +104,6 @@ function StoreContent() {
     setFilteredProducts(filtered);
   }, [products, category, type]);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="rotate-slow w-20 h-20 border-4 border-primary rounded-full border-t-transparent" />
-        <p className="ml-4">{t("store.loading")}</p>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -116,69 +130,71 @@ function StoreContent() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-        {filteredProducts.map((product, index) => (
-          <Card
-            key={product.id}
-            className="card-hover-effect overflow-hidden"
-            style={{
-              animationDelay: `${index * 100}ms`,
-            }}
-          >
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
-                {product.type === "Sacred Geometry" ? (
-                  <span className="text-xl sm:text-2xl rotate-slow inline-block">
-                    ⬡
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, i) => <ProductSkeleton key={i} />)
+          : filteredProducts.map((product, index) => (
+              <Card
+                key={product.id}
+                className="card-hover-effect overflow-hidden"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
+              >
+                <CardHeader className="p-3 sm:p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+                    {product.type === "Sacred Geometry" ? (
+                      <span className="text-xl sm:text-2xl rotate-slow inline-block">
+                        ⬡
+                      </span>
+                    ) : (
+                      <span className="text-xl sm:text-2xl float inline-block">
+                        🌸
+                      </span>
+                    )}
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {product.type}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={400}
+                      height={400}
+                      className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
+                      priority
+                    />
+                  ) : (
+                    <Image
+                      src={
+                        product.type === "Sacred Geometry"
+                          ? `/products/sacred-geometry.svg#${product.id}`
+                          : "/products/flower-essence.svg"
+                      }
+                      alt={product.name}
+                      width={400}
+                      height={400}
+                      className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
+                      priority
+                    />
+                  )}
+                  <p className="text-muted-foreground text-sm">
+                    {product.description}
+                  </p>
+                </CardContent>
+                <CardFooter className="flex flex-col xs:flex-row justify-center xs:justify-between items-center p-3 sm:p-4 md:p-6 gap-2 xs:gap-0">
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary text-center xs:text-left">
+                    ${product.price.toFixed(2)}
                   </span>
-                ) : (
-                  <span className="text-xl sm:text-2xl float inline-block">
-                    🌸
-                  </span>
-                )}
-                {product.name}
-              </CardTitle>
-              <CardDescription className="text-sm">
-                {product.type}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-3 sm:p-4 md:p-6">
-              {product.imageUrl ? (
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={400}
-                  height={400}
-                  className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
-                  priority
-                />
-              ) : (
-                <Image
-                  src={
-                    product.type === "Sacred Geometry"
-                      ? `/products/sacred-geometry.svg#${product.id}`
-                      : "/products/flower-essence.svg"
-                  }
-                  alt={product.name}
-                  width={400}
-                  height={400}
-                  className="w-full aspect-square object-cover rounded-lg mb-2 sm:mb-3 md:mb-4"
-                  priority
-                />
-              )}
-              <p className="text-muted-foreground text-sm">
-                {product.description}
-              </p>
-            </CardContent>
-            <CardFooter className="flex flex-col xs:flex-row justify-center xs:justify-between items-center p-3 sm:p-4 md:p-6 gap-2 xs:gap-0">
-              <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary text-center xs:text-left">
-                ${product.price.toFixed(2)}
-              </span>
-              <Button size="sm" onClick={() => addToCart(product)}>
-                {t("store.add_to_cart")}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+                  <Button size="sm" onClick={() => addToCart(product)}>
+                    {t("store.add_to_cart")}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
       </div>
 
       <ChatBot />
