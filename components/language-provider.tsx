@@ -384,6 +384,30 @@ export const translations: Translations = {
     en: "Sign Out",
     es: "Cerrar Sesión",
   },
+  "admin.search_by_name": {
+    en: "Search by name...",
+    es: "Buscar por nombre...",
+  },
+  "admin.filter_by_type": {
+    en: "Filter by type",
+    es: "Filtrar por tipo",
+  },
+  "admin.all_types": {
+    en: "All types",
+    es: "Todos los tipos",
+  },
+  "admin.min_price": {
+    en: "Min price",
+    es: "Precio mínimo",
+  },
+  "admin.max_price": {
+    en: "Max price",
+    es: "Precio máximo",
+  },
+  "admin.products_found": {
+    en: "products found",
+    es: "productos encontrados",
+  },
 };
 
 interface LanguageContextType {
