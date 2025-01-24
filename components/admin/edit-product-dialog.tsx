@@ -8,13 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Product, ProductFormData } from "@/types/product";
+import { Product } from "@/types/product";
 import { ProductForm } from "./product-form";
 
 interface EditProductDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ProductFormData) => Promise<void>;
   isLoading: boolean;
   product: Product | null;
 }
@@ -22,7 +21,6 @@ interface EditProductDialogProps {
 export function EditProductDialog({
   isOpen,
   onOpenChange,
-  onSubmit,
   isLoading,
   product,
 }: EditProductDialogProps) {
@@ -47,9 +45,9 @@ export function EditProductDialog({
             price: product.price.toString(),
             stock: product.stock.toString(),
             imageUrl: product.imageUrl || "",
+            id: product.id,
           }}
           isLoading={isLoading}
-          onSubmit={onSubmit}
           submitLabel={t("admin.edit")}
         />
       </DialogContent>

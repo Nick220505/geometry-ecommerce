@@ -1,5 +1,6 @@
 "use client";
 
+import { productFormAction } from "@/app/actions/form";
 import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,15 +13,34 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ProductFormData } from "@/types/product";
+import {
+  AlertCircle,
+  Box,
+  DollarSign,
+  ImageIcon,
+  Info,
+  Package2,
+  Tags,
+} from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 
 interface ProductFormProps {
-  initialData?: ProductFormData;
+  initialData?: ProductFormData & { id?: string };
   isLoading: boolean;
-  onSubmit: (data: ProductFormData) => Promise<void>;
   submitLabel: string;
 }
+
+interface FormState {
+  errors: Record<string, string[]>;
+  message: string;
+  success?: boolean;
+}
+
+const initialState: FormState = {
+  errors: {},
+  message: "",
+};
 
 export function ProductForm({
   initialData = {
@@ -32,22 +52,13 @@ export function ProductForm({
     imageUrl: "",
   },
   isLoading,
-  onSubmit,
   submitLabel,
 }: ProductFormProps) {
   const [formData, setFormData] = useState<ProductFormData>(initialData);
-  const [error, setError] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const { t } = useTranslation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await onSubmit(formData);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    }
-  };
+  const [state, formAction] = useActionState(productFormAction, initialState);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -69,42 +80,80 @@ export function ProductForm({
 
       const data = await response.json();
       setFormData((prev) => ({ ...prev, imageUrl: data.url }));
-    } catch {
-      setError("Failed to upload image");
+    } catch (error) {
+      console.error("Failed to upload image:", error);
     } finally {
       setUploadingImage(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-6">
+      {initialData.id && (
+        <Input type="hidden" name="id" value={initialData.id} />
+      )}
       <div className="space-y-2">
-        <label htmlFor="name">{t("admin.product_name")}</label>
+        <label
+          htmlFor="name"
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <Tags className="h-4 w-4" />
+          {t("admin.product_name")}
+        </label>
         <Input
           id="name"
+          name="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
+          className="focus-visible:ring-primary"
+          placeholder="Enter product name"
         />
+        {state.errors?.name && (
+          <p className="text-sm text-red-500 flex items-center gap-1">
+            <AlertCircle className="h-4 w-4" />
+            {state.errors.name[0]}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="description">{t("admin.description")}</label>
+        <label
+          htmlFor="description"
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <Info className="h-4 w-4" />
+          {t("admin.description")}
+        </label>
         <Textarea
           id="description"
+          name="description"
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
           }
-          required
+          className="focus-visible:ring-primary min-h-[100px]"
+          placeholder="Enter product description"
         />
+        {state.errors?.description && (
+          <p className="text-sm text-red-500 flex items-center gap-1">
+            <AlertCircle className="h-4 w-4" />
+            {state.errors.description[0]}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="type">{t("admin.type")}</label>
+        <label
+          htmlFor="type"
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <Box className="h-4 w-4" />
+          {t("admin.type")}
+        </label>
         <Select
           value={formData.type}
+          name="type"
           onValueChange={(value) => setFormData({ ...formData, type: value })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="focus-visible:ring-primary">
             <SelectValue placeholder="Select product type" />
           </SelectTrigger>
           <SelectContent>
@@ -112,58 +161,123 @@ export function ProductForm({
             <SelectItem value="Sacred Geometry">Sacred Geometry</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="price">{t("admin.price")}</label>
-        <Input
-          id="price"
-          type="number"
-          step="0.01"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="stock">{t("admin.stock")}</label>
-        <Input
-          id="stock"
-          type="number"
-          value={formData.stock}
-          onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="image">{t("admin.product_image")}</label>
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploadingImage}
-        />
-        {uploadingImage && (
-          <p className="text-sm text-muted-foreground">
-            {t("admin.uploading_image")}
+        {state.errors?.type && (
+          <p className="text-sm text-red-500 flex items-center gap-1">
+            <AlertCircle className="h-4 w-4" />
+            {state.errors.type[0]}
           </p>
         )}
-        {formData.imageUrl && (
-          <div className="mt-2">
-            <Image
-              src={formData.imageUrl}
-              alt={t("admin.product_preview")}
-              width={128}
-              height={128}
-              className="w-32 h-32 object-cover rounded-lg"
-            />
-          </div>
-        )}
       </div>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label
+            htmlFor="price"
+            className="flex items-center gap-2 text-sm font-medium"
+          >
+            <DollarSign className="h-4 w-4" />
+            {t("admin.price")}
+          </label>
+          <Input
+            id="price"
+            name="price"
+            type="number"
+            step="0.01"
+            value={formData.price}
+            onChange={(e) =>
+              setFormData({ ...formData, price: e.target.value })
+            }
+            className="focus-visible:ring-primary"
+            placeholder="0.00"
+          />
+          {state.errors?.price && (
+            <p className="text-sm text-red-500 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              {state.errors.price[0]}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="stock"
+            className="flex items-center gap-2 text-sm font-medium"
+          >
+            <Package2 className="h-4 w-4" />
+            {t("admin.stock")}
+          </label>
+          <Input
+            id="stock"
+            name="stock"
+            type="number"
+            value={formData.stock}
+            onChange={(e) =>
+              setFormData({ ...formData, stock: e.target.value })
+            }
+            className="focus-visible:ring-primary"
+            placeholder="0"
+          />
+          {state.errors?.stock && (
+            <p className="text-sm text-red-500 flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+              {state.errors.stock[0]}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label
+          htmlFor="image"
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <ImageIcon className="h-4 w-4" />
+          {t("admin.product_image")}
+        </label>
+        <div className="flex flex-col gap-4">
+          <Input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={uploadingImage}
+            className="focus-visible:ring-primary"
+          />
+          <Input
+            type="hidden"
+            name="imageUrl"
+            value={formData.imageUrl || ""}
+          />
+          {uploadingImage && (
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <span className="animate-spin">⏳</span>
+              {t("admin.uploading_image")}
+            </p>
+          )}
+          {formData.imageUrl && (
+            <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
+              <Image
+                src={formData.imageUrl}
+                alt={t("admin.product_preview")}
+                fill
+                sizes="(max-width: 768px) 100vw, 128px"
+                className="object-cover"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      {state.message && (
+        <p
+          className={`text-sm flex items-center gap-1 ${
+            state.success ? "text-green-500" : "text-red-500"
+          }`}
+          role="alert"
+        >
+          <AlertCircle className="h-4 w-4" />
+          {state.message}
+        </p>
+      )}
       <Button
         type="submit"
-        className="w-full"
+        className="w-full bg-primary hover:bg-primary/90"
         disabled={isLoading || uploadingImage}
       >
         {isLoading

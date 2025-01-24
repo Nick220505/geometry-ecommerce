@@ -8,19 +8,13 @@ import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProductManagement } from "@/hooks/use-product-management";
-import { Product, ProductFormData } from "@/types/product";
+import { Product } from "@/types/product";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
-  const {
-    products,
-    isLoading,
-    error,
-    fetchProducts,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-  } = useProductManagement();
+  const { products, isLoading, error, fetchProducts, deleteProduct } =
+    useProductManagement();
 
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isEditProductOpen, setIsEditProductOpen] = useState(false);
@@ -32,26 +26,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-
-  const handleAddProduct = async (data: ProductFormData) => {
-    try {
-      await addProduct(data);
-      setIsAddProductOpen(false);
-    } catch {
-      // Error is handled by the form component
-    }
-  };
-
-  const handleEditProduct = async (data: ProductFormData) => {
-    if (!editingProduct) return;
-    try {
-      await updateProduct(editingProduct.id, data);
-      setIsEditProductOpen(false);
-      setEditingProduct(null);
-    } catch {
-      // Error is handled by the form component
-    }
-  };
 
   const handleDelete = (product: Product) => {
     setProductToDelete(product);
@@ -74,9 +48,11 @@ export default function AdminDashboard() {
           <CardTitle>{t("admin.title")}</CardTitle>
           <Button
             onClick={() => setIsAddProductOpen(true)}
-            className="bg-primary"
+            className="bg-primary hover:bg-primary/90"
+            size="sm"
           >
             {t("admin.add_product")}
+            <Plus />
           </Button>
         </CardHeader>
         <CardContent>
@@ -96,7 +72,6 @@ export default function AdminDashboard() {
       <AddProductDialog
         isOpen={isAddProductOpen}
         onOpenChange={setIsAddProductOpen}
-        onSubmit={handleAddProduct}
         isLoading={isLoading}
       />
 
@@ -106,7 +81,6 @@ export default function AdminDashboard() {
           setIsEditProductOpen(open);
           if (!open) setEditingProduct(null);
         }}
-        onSubmit={handleEditProduct}
         isLoading={isLoading}
         product={editingProduct}
       />

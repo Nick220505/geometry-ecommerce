@@ -432,6 +432,14 @@ export const translations: Translations = {
     en: "Editing...",
     es: "Editando...",
   },
+  "admin.edit_tooltip": {
+    en: "Edit product",
+    es: "Editar producto",
+  },
+  "admin.delete_tooltip": {
+    en: "Delete product",
+    es: "Eliminar producto",
+  },
 };
 
 interface LanguageContextType {

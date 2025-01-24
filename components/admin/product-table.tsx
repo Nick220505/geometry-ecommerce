@@ -26,8 +26,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Product } from "@/types/product";
-import { ArrowUpDown, ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
@@ -163,216 +169,237 @@ export function ProductTable({
   }
 
   return (
-    <div className="space-y-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("admin.image")}</TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                {t("admin.name")}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <div className="p-2">
-                      <Input
-                        placeholder={t("admin.search_by_name")}
-                        value={nameFilter}
-                        onChange={(e) => setNameFilter(e.target.value)}
-                        className="h-8"
-                      />
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleSort("name")}>
-                      <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
-                      {t("admin.sort_by_name")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                {t("admin.type")}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <div className="p-2">
-                      <Input
-                        placeholder={t("admin.filter_by_type")}
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        className="h-8"
-                      />
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleSort("type")}>
-                      <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
-                      {t("admin.sort_by_type")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                {t("admin.price")}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSort("price")}
-                  className="h-8 w-8 p-0"
-                >
-                  <ArrowUpDown className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center gap-2">
-                {t("admin.stock")}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleSort("stock")}
-                  className="h-8 w-8 p-0"
-                >
-                  <ArrowUpDown className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableHead>
-            <TableHead>{t("admin.actions")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>
-                {product.imageUrl ? (
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                ) : (
-                  <Image
-                    src={
-                      product.type === "Sacred Geometry"
-                        ? `/products/sacred-geometry.svg#${product.id}`
-                        : "/products/flower-essence.svg"
-                    }
-                    alt={product.name}
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                )}
-              </TableCell>
-              <TableCell>{product.name}</TableCell>
-              <TableCell>{product.type}</TableCell>
-              <TableCell>${product.price.toFixed(2)}</TableCell>
-              <TableCell>{product.stock}</TableCell>
-              <TableCell className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(product)}
-                >
-                  {t("admin.edit")}
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(product)}
-                >
-                  {t("admin.delete")}
-                </Button>
-              </TableCell>
+    <TooltipProvider>
+      <div className="space-y-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("admin.image")}</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                  {t("admin.name")}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <div className="p-2">
+                        <Input
+                          placeholder={t("admin.search_by_name")}
+                          value={nameFilter}
+                          onChange={(e) => setNameFilter(e.target.value)}
+                          className="h-8"
+                        />
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSort("name")}>
+                        <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
+                        {t("admin.sort_by_name")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                  {t("admin.type")}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <div className="p-2">
+                        <Input
+                          placeholder={t("admin.filter_by_type")}
+                          value={typeFilter}
+                          onChange={(e) => setTypeFilter(e.target.value)}
+                          className="h-8"
+                        />
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSort("type")}>
+                        <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
+                        {t("admin.sort_by_type")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                  {t("admin.price")}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort("price")}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                  {t("admin.stock")}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort("stock")}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableHead>
+              <TableHead>{t("admin.actions")}</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedProducts.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell>
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <Image
+                      src={
+                        product.type === "Sacred Geometry"
+                          ? `/products/sacred-geometry.svg#${product.id}`
+                          : "/products/flower-essence.svg"
+                      }
+                      alt={product.name}
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  )}
+                </TableCell>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.type}</TableCell>
+                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>{product.stock}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => onEdit(product)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t("admin.edit_tooltip")}</p>
+                      </TooltipContent>
+                    </Tooltip>
 
-      {Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE) > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                aria-disabled={currentPage === 1}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((p) => Math.max(1, p - 1));
-                }}
-              >
-                {t("pagination.previous")}
-              </PaginationPrevious>
-            </PaginationItem>
-            {Array.from(
-              {
-                length: Math.ceil(
-                  sortedAndFilteredProducts.length / ITEMS_PER_PAGE,
-                ),
-              },
-              (_, i) => i + 1,
-            ).map((pageNumber) => (
-              <PaginationItem key={pageNumber}>
-                <PaginationLink
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => onDelete(product)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t("admin.delete_tooltip")}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        {Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE) > 1 && (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
                   href="#"
+                  aria-disabled={currentPage === 1}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                  }
                   onClick={(e) => {
                     e.preventDefault();
-                    setCurrentPage(pageNumber);
+                    setCurrentPage((p) => Math.max(1, p - 1));
                   }}
-                  isActive={currentPage === pageNumber}
-                  aria-label={`${t("pagination.page")} ${pageNumber}`}
                 >
-                  {pageNumber}
-                </PaginationLink>
+                  {t("pagination.previous")}
+                </PaginationPrevious>
               </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                aria-disabled={
-                  currentPage ===
-                  Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE)
-                }
-                className={
-                  currentPage ===
-                  Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE)
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((p) =>
-                    Math.min(
-                      Math.ceil(
-                        sortedAndFilteredProducts.length / ITEMS_PER_PAGE,
+              {Array.from(
+                {
+                  length: Math.ceil(
+                    sortedAndFilteredProducts.length / ITEMS_PER_PAGE,
+                  ),
+                },
+                (_, i) => i + 1,
+              ).map((pageNumber) => (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(pageNumber);
+                    }}
+                    isActive={currentPage === pageNumber}
+                    aria-label={`${t("pagination.page")} ${pageNumber}`}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  aria-disabled={
+                    currentPage ===
+                    Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE)
+                  }
+                  className={
+                    currentPage ===
+                    Math.ceil(sortedAndFilteredProducts.length / ITEMS_PER_PAGE)
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage((p) =>
+                      Math.min(
+                        Math.ceil(
+                          sortedAndFilteredProducts.length / ITEMS_PER_PAGE,
+                        ),
+                        p + 1,
                       ),
-                      p + 1,
-                    ),
-                  );
-                }}
-              >
-                {t("pagination.next")}
-              </PaginationNext>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-    </div>
+                    );
+                  }}
+                >
+                  {t("pagination.next")}
+                </PaginationNext>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
