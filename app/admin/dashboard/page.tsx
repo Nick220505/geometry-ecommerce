@@ -5,6 +5,7 @@ import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { EditProductDialog } from "@/components/admin/edit-product-dialog";
 import { ProductTable } from "@/components/admin/product-table";
 import { useTranslation } from "@/components/language-provider";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProductManagement } from "@/hooks/use-product-management";
 import { Product, ProductFormData } from "@/types/product";
@@ -69,14 +70,14 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>{t("admin.title")}</CardTitle>
-          <AddProductDialog
-            isOpen={isAddProductOpen}
-            onOpenChange={setIsAddProductOpen}
-            onSubmit={handleAddProduct}
-            isLoading={isLoading}
-          />
+          <Button
+            onClick={() => setIsAddProductOpen(true)}
+            className="bg-primary"
+          >
+            {t("admin.add_product")}
+          </Button>
         </CardHeader>
         <CardContent>
           {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
@@ -91,6 +92,13 @@ export default function AdminDashboard() {
           />
         </CardContent>
       </Card>
+
+      <AddProductDialog
+        isOpen={isAddProductOpen}
+        onOpenChange={setIsAddProductOpen}
+        onSubmit={handleAddProduct}
+        isLoading={isLoading}
+      />
 
       <EditProductDialog
         isOpen={isEditProductOpen}

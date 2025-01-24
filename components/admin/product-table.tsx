@@ -189,7 +189,7 @@ export function ProductTable({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => handleSort("name")}>
                       <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
-                      Sort by name
+                      {t("admin.sort_by_name")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -216,7 +216,7 @@ export function ProductTable({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => handleSort("type")}>
                       <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
-                      Sort by type
+                      {t("admin.sort_by_type")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -316,7 +316,9 @@ export function ProductTable({
                   e.preventDefault();
                   setCurrentPage((p) => Math.max(1, p - 1));
                 }}
-              />
+              >
+                {t("pagination.previous")}
+              </PaginationPrevious>
             </PaginationItem>
             {Array.from(
               {
@@ -334,6 +336,7 @@ export function ProductTable({
                     setCurrentPage(pageNumber);
                   }}
                   isActive={currentPage === pageNumber}
+                  aria-label={`${t("pagination.page")} ${pageNumber}`}
                 >
                   {pageNumber}
                 </PaginationLink>
@@ -363,7 +366,9 @@ export function ProductTable({
                     ),
                   );
                 }}
-              />
+              >
+                {t("pagination.next")}
+              </PaginationNext>
             </PaginationItem>
           </PaginationContent>
         </Pagination>

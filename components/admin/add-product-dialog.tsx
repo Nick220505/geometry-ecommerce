@@ -1,14 +1,12 @@
 "use client";
 
 import { useTranslation } from "@/components/language-provider";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProductFormData } from "@/types/product";
 import { ProductForm } from "./product-form";
@@ -30,14 +28,11 @@ export function AddProductDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button>{t("admin.add_product")}</Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("admin.add_new_product")}</DialogTitle>
           <DialogDescription className="sr-only">
-            Product form for adding a new product
+            Form to add a new product to the store
           </DialogDescription>
         </DialogHeader>
         <ProductForm

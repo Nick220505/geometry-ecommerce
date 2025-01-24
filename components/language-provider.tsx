@@ -408,6 +408,30 @@ export const translations: Translations = {
     en: "products found",
     es: "productos encontrados",
   },
+  "pagination.previous": {
+    en: "Previous",
+    es: "Anterior",
+  },
+  "pagination.next": {
+    en: "Next",
+    es: "Siguiente",
+  },
+  "pagination.page": {
+    en: "Page",
+    es: "Página",
+  },
+  "admin.sort_by_name": {
+    en: "Sort by name",
+    es: "Ordenar por nombre",
+  },
+  "admin.sort_by_type": {
+    en: "Sort by type",
+    es: "Ordenar por tipo",
+  },
+  "admin.updating": {
+    en: "Updating...",
+    es: "Actualizando...",
+  },
 };
 
 interface LanguageContextType {
