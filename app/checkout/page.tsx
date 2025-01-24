@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/components/cart-provider";
+import { StripePaymentForm } from "@/components/stripe-payment-form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -36,7 +37,6 @@ const checkoutSchema = z.object({
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
-  documentId: z.string().min(5, "Document ID must be at least 5 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
   city: z.string().min(2, "City must be at least 2 characters"),
   state: z.string().min(2, "State must be at least 2 characters"),
@@ -64,6 +64,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [differentShippingAddress, setDifferentShippingAddress] =
     useState(false);
+  const [clientSecret, setClientSecret] = useState<string>();
 
   const {
     register,
@@ -78,18 +79,32 @@ export default function CheckoutPage() {
     },
   });
 
+  // Calculate totals
+  const subtotal = parseFloat(total);
+  const finalTotal = subtotal + SHIPPING_COST;
+
+  // Create PaymentIntent as soon as the page loads
+  useEffect(() => {
+    if (paymentMethod === "card") {
+      fetch("/api/stripe/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: finalTotal }),
+      })
+        .then((res) => res.json())
+        .then((data) => setClientSecret(data.clientSecret))
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [paymentMethod, finalTotal]);
+
   const onSubmit = async (data: CheckoutFormData) => {
     if (paymentMethod === "card") {
-      // Handle Stripe payment
+      // Stripe payment is handled by StripePaymentForm
       console.log("Form data:", data);
     } else if (paymentMethod === "paypal") {
       // PayPal is handled by PayPal buttons
     }
   };
-
-  // Calculate totals
-  const subtotal = parseFloat(total);
-  const finalTotal = subtotal + SHIPPING_COST;
 
   // Don't show checkout if cart is empty
   if (!cart || cart.length === 0) {
@@ -143,20 +158,6 @@ export default function CheckoutPage() {
                     </p>
                   )}
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="documentId">Document ID / Passport *</Label>
-                <Input
-                  id="documentId"
-                  {...register("documentId")}
-                  className={errors.documentId ? "border-red-500" : ""}
-                />
-                {errors.documentId && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.documentId.message}
-                  </p>
-                )}
               </div>
 
               <div>
@@ -460,14 +461,17 @@ export default function CheckoutPage() {
                 </PayPalScriptProvider>
               )}
 
-              {paymentMethod === "card" && (
-                <Elements stripe={stripePromise}>
-                  {/* Stripe Card Element will go here */}
-                  <div className="p-4 border rounded">
-                    <p className="text-sm text-gray-500">
-                      Stripe integration will be implemented here
-                    </p>
-                  </div>
+              {paymentMethod === "card" && clientSecret && (
+                <Elements
+                  stripe={stripePromise}
+                  options={{
+                    clientSecret,
+                    appearance: {
+                      theme: "stripe",
+                    },
+                  }}
+                >
+                  <StripePaymentForm clientSecret={clientSecret} />
                 </Elements>
               )}
             </div>
