@@ -428,9 +428,9 @@ export const translations: Translations = {
     en: "Sort by type",
     es: "Ordenar por tipo",
   },
-  "admin.updating": {
-    en: "Updating...",
-    es: "Actualizando...",
+  "admin.editing": {
+    en: "Editing...",
+    es: "Editando...",
   },
 };
 

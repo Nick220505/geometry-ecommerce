@@ -166,7 +166,11 @@ export function ProductForm({
         className="w-full"
         disabled={isLoading || uploadingImage}
       >
-        {isLoading ? t("admin.adding") : submitLabel}
+        {isLoading
+          ? initialData?.name
+            ? t("admin.editing")
+            : t("admin.adding")
+          : submitLabel}
       </Button>
     </form>
   );
