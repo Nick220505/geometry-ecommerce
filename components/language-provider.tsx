@@ -356,50 +356,6 @@ export const translations: Translations = {
     en: "Delete",
     es: "Eliminar",
   },
-  "admin.delete_confirm": {
-    en: "Are you sure you want to delete this product?",
-    es: "¿Está seguro de que desea eliminar este producto?",
-  },
-  "admin.error.failed_load": {
-    en: "Failed to load products",
-    es: "Error al cargar los productos",
-  },
-  "admin.error.failed_add": {
-    en: "Failed to add product",
-    es: "Error al añadir el producto",
-  },
-  "admin.error.failed_update": {
-    en: "Failed to update product",
-    es: "Error al actualizar el producto",
-  },
-  "admin.error.failed_delete": {
-    en: "Failed to delete product",
-    es: "Error al eliminar el producto",
-  },
-  "admin.error.failed_upload": {
-    en: "Failed to upload image",
-    es: "Error al subir la imagen",
-  },
-  "store.loading": {
-    en: "Loading...",
-    es: "Cargando...",
-  },
-  "store.error.failed_load": {
-    en: "Failed to load products",
-    es: "Error al cargar los productos",
-  },
-  "admin.add_product_description": {
-    en: "Add a new product to your store with details like name, description, price, and image",
-    es: "Añade un nuevo producto a tu tienda con detalles como nombre, descripción, precio e imagen",
-  },
-  "admin.edit_product_description": {
-    en: "Edit the selected product's details including name, description, price, and image",
-    es: "Edita los detalles del producto seleccionado incluyendo nombre, descripción, precio e imagen",
-  },
-  "nav.signout": {
-    en: "Sign Out",
-    es: "Cerrar Sesión",
-  },
   "admin.delete_confirm_title": {
     en: "Delete Product",
     es: "Eliminar Producto",
@@ -415,6 +371,18 @@ export const translations: Translations = {
   "admin.confirm_delete": {
     en: "Delete",
     es: "Eliminar",
+  },
+  "store.loading": {
+    en: "Loading...",
+    es: "Cargando...",
+  },
+  "store.error.failed_load": {
+    en: "Failed to load products",
+    es: "Error al cargar los productos",
+  },
+  "nav.signout": {
+    en: "Sign Out",
+    es: "Cerrar Sesión",
   },
 };
 

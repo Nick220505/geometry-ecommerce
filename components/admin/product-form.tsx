@@ -11,17 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ProductFormData } from "@/types/product";
 import Image from "next/image";
 import { useState } from "react";
-
-interface ProductFormData {
-  name: string;
-  description: string;
-  type: string;
-  price: string;
-  stock: string;
-  imageUrl: string;
-}
 
 interface ProductFormProps {
   initialData?: ProductFormData;
