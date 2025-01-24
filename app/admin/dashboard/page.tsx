@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -53,6 +54,8 @@ export default function AdminDashboard() {
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const { t } = useTranslation();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   // Fetch products
   const fetchProducts = async () => {
@@ -115,23 +118,21 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleEditProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEditProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
-
-    setIsLoading(true);
-    setError("");
 
     try {
       const response = await fetch(`/api/products/${editingProduct.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(editingProduct),
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update product");
+        throw new Error(t("admin.error.failed_update"));
       }
 
       await fetchProducts();
@@ -139,33 +140,33 @@ export default function AdminDashboard() {
       setEditingProduct(null);
     } catch (error) {
       console.error("Error updating product:", error);
-      setError(
-        error instanceof Error ? error.message : "Failed to update product",
-      );
-    } finally {
-      setIsLoading(false);
+      setError(t("admin.error.failed_update"));
     }
   };
 
-  const handleDeleteProduct = async (id: string) => {
-    if (!confirm(t("admin.delete_confirm"))) return;
+  const handleDelete = async (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/products/${productToDelete.id}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || t("admin.error.failed_delete"));
+        throw new Error(t("admin.error.failed_delete"));
       }
 
-      await fetchProducts();
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setProductToDelete(null);
     } catch (error) {
       console.error("Error deleting product:", error);
-      setError(
-        error instanceof Error ? error.message : t("admin.error.failed_delete"),
-      );
+      setError(t("admin.error.failed_delete"));
     }
   };
 
@@ -215,7 +216,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-8">
+    <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t("admin.title")}</CardTitle>
@@ -532,7 +533,7 @@ export default function AdminDashboard() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDeleteProduct(product.id)}
+                      onClick={() => handleDelete(product)}
                     >
                       {t("admin.delete")}
                     </Button>
@@ -543,6 +544,29 @@ export default function AdminDashboard() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("admin.delete_confirm_title")}</DialogTitle>
+            <DialogDescription>
+              {productToDelete ? t("admin.delete_confirm_description") : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex space-x-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              {t("admin.cancel")}
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              {t("admin.confirm_delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

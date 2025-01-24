@@ -400,6 +400,22 @@ export const translations: Translations = {
     en: "Sign Out",
     es: "Cerrar Sesión",
   },
+  "admin.delete_confirm_title": {
+    en: "Delete Product",
+    es: "Eliminar Producto",
+  },
+  "admin.delete_confirm_description": {
+    en: "Are you sure you want to delete this product? This action cannot be undone.",
+    es: "¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.",
+  },
+  "admin.cancel": {
+    en: "Cancel",
+    es: "Cancelar",
+  },
+  "admin.confirm_delete": {
+    en: "Delete",
+    es: "Eliminar",
+  },
 };
 
 interface LanguageContextType {
