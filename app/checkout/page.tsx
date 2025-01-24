@@ -484,7 +484,7 @@ export default function CheckoutPage() {
                     },
                   }}
                 >
-                  <StripePaymentForm clientSecret={clientSecret} />
+                  <StripePaymentForm />
                 </Elements>
               )}
             </div>
