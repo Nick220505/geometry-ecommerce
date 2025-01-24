@@ -78,7 +78,7 @@ export async function translateProduct(
   const translatedProduct = { ...product };
 
   try {
-    // Always use Google Translate for product names and descriptions
+    // Always use Google Translate for product names, descriptions, and types
     translatedProduct.name = await translateText(
       product.name,
       targetLanguage,
@@ -89,9 +89,13 @@ export async function translateProduct(
       targetLanguage,
       true,
     );
-
-    // Keep the original type
-    // Do not translate type as it's used for filtering
+    if (product.type) {
+      translatedProduct.type = await translateText(
+        product.type,
+        targetLanguage,
+        true,
+      );
+    }
   } catch (error) {
     console.error("Error translating product:", error);
   }
