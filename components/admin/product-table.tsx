@@ -70,24 +70,24 @@ function TableSkeleton() {
           {[...Array(5)].map((_, index) => (
             <TableRow key={index}>
               <TableCell>
-                <div className="w-16 h-16 rounded-lg bg-gray-200 animate-pulse" />
+                <div className="w-16 h-16 rounded-lg bg-muted animate-pulse" />
               </TableCell>
               <TableCell>
-                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-muted rounded animate-pulse" />
               </TableCell>
               <TableCell>
-                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
               </TableCell>
               <TableCell>
-                <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-16 bg-muted rounded animate-pulse" />
               </TableCell>
               <TableCell>
-                <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-12 bg-muted rounded animate-pulse" />
               </TableCell>
               <TableCell>
-                <div className="flex space-x-2">
-                  <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+                  <div className="h-8 w-8 rounded bg-muted animate-pulse" />
                 </div>
               </TableCell>
             </TableRow>
