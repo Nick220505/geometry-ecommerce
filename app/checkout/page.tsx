@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Link from "next/link";
@@ -58,6 +58,69 @@ const checkoutSchema = z.object({
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
+
+// Create a separate PayPal component
+function PayPalPaymentButton({
+  finalTotal,
+  watch,
+}: {
+  finalTotal: number;
+  watch: () => CheckoutFormData;
+}) {
+  const [{ isPending }] = usePayPalScriptReducer();
+
+  if (isPending) {
+    return <div>Loading PayPal...</div>;
+  }
+
+  return (
+    <div className="min-h-[200px] flex items-center justify-center">
+      <PayPalButtons
+        style={{
+          layout: "vertical",
+          shape: "rect",
+        }}
+        createOrder={(_, actions) => {
+          const formData = watch();
+          return actions.order.create({
+            intent: "CAPTURE",
+            purchase_units: [
+              {
+                amount: {
+                  currency_code: "USD",
+                  value: finalTotal.toFixed(2),
+                },
+              },
+            ],
+            payer: formData.email
+              ? {
+                  email_address: formData.email,
+                  name: {
+                    given_name: formData.firstName,
+                    surname: formData.lastName,
+                  },
+                  address: {
+                    address_line_1: formData.address,
+                    admin_area_2: formData.city,
+                    postal_code: formData.postalCode,
+                    country_code: formData.country,
+                  },
+                }
+              : undefined,
+          });
+        }}
+        onApprove={async (data, actions) => {
+          if (actions.order) {
+            return actions.order.capture().then((details) => {
+              console.log("Payment completed:", details);
+              // Handle success
+            });
+          }
+        }}
+      />
+    </div>
+  );
+}
 
 export default function CheckoutPage() {
   const { total, cart } = useCart();
@@ -408,57 +471,7 @@ export default function CheckoutPage() {
               </RadioGroup>
 
               {paymentMethod === "paypal" && (
-                <PayPalScriptProvider
-                  options={{
-                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
-                    currency: "USD",
-                  }}
-                >
-                  <PayPalButtons
-                    createOrder={(_, actions) => {
-                      const formData = watch(); // Get current form values
-                      return actions.order.create({
-                        intent: "CAPTURE",
-                        purchase_units: [
-                          {
-                            amount: {
-                              currency_code: "USD",
-                              value: finalTotal.toFixed(2),
-                            },
-                          },
-                        ],
-                        payer: formData.email
-                          ? {
-                              email_address: formData.email,
-                              name: {
-                                given_name: formData.firstName,
-                                surname: formData.lastName,
-                              },
-                              address: {
-                                address_line_1: formData.address,
-                                admin_area_2: formData.city,
-                                postal_code: formData.postalCode,
-                                country_code: formData.country,
-                              },
-                            }
-                          : undefined,
-                      });
-                    }}
-                    onApprove={async (data, actions) => {
-                      if (actions.order) {
-                        return actions.order.capture().then((details) => {
-                          // Handle successful payment
-                          console.log("Payment completed:", details);
-                          // Here you would typically:
-                          // 1. Update your database
-                          // 2. Clear the cart
-                          // 3. Show a success message
-                          // 4. Redirect to a success page
-                        });
-                      }
-                    }}
-                  />
-                </PayPalScriptProvider>
+                <PayPalPaymentButton finalTotal={finalTotal} watch={watch} />
               )}
 
               {paymentMethod === "card" && clientSecret && (
