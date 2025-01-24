@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -259,14 +266,24 @@ export default function AdminDashboard() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="type">{t("admin.type")}</label>
-                  <Input
-                    id="type"
+                  <Select
                     value={newProduct.type}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, type: e.target.value })
+                    onValueChange={(value) =>
+                      setNewProduct({ ...newProduct, type: value })
                     }
-                    required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select product type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Flower Essence">
+                        Flower Essence
+                      </SelectItem>
+                      <SelectItem value="Sacred Geometry">
+                        Sacred Geometry
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="price">{t("admin.price")}</label>
@@ -441,17 +458,27 @@ export default function AdminDashboard() {
                               <label htmlFor="edit-type">
                                 {t("admin.type")}
                               </label>
-                              <Input
-                                id="edit-type"
+                              <Select
                                 value={editingProduct.type}
-                                onChange={(e) =>
+                                onValueChange={(value) =>
                                   setEditingProduct({
                                     ...editingProduct,
-                                    type: e.target.value,
+                                    type: value,
                                   })
                                 }
-                                required
-                              />
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select product type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Flower Essence">
+                                    Flower Essence
+                                  </SelectItem>
+                                  <SelectItem value="Sacred Geometry">
+                                    Sacred Geometry
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                             <div className="space-y-2">
                               <label htmlFor="edit-price">
