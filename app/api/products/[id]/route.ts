@@ -7,12 +7,12 @@ export const runtime = "nodejs";
 // GET /api/products/[id] - Get a single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const product = await prisma.product.findUnique({
       where: {
-        id: params.id,
+        id: (await params).id,
       },
     });
 
