@@ -7,25 +7,23 @@ export const runtime = "nodejs";
 // GET /api/products/[id] - Get a single product
 export async function GET(
   request: NextRequest,
-  props: { params: Promise<{ id: string }> },
+  { params }: { params: { id: string } },
 ) {
-  const { id } = await props.params;
   try {
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: {
+        id: params.id,
+      },
     });
 
     if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return new NextResponse("Product not found", { status: 404 });
     }
 
     return NextResponse.json(product);
   } catch (error) {
-    console.error("Error fetching product:", error);
-    return NextResponse.json(
-      { error: "Error fetching product" },
-      { status: 500 },
-    );
+    console.error("[PRODUCT_GET]", error);
+    return new NextResponse("Internal error", { status: 500 });
   }
 }
 

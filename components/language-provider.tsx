@@ -52,6 +52,10 @@ export const translations: Translations = {
     en: "Add to Cart",
     es: "Añadir al Carrito",
   },
+  "store.view_details": {
+    en: "View Details",
+    es: "Ver Detalles",
+  },
   "store.product.addToCart": {
     en: "Add to Cart",
     es: "Añadir al Carrito",
@@ -439,6 +443,50 @@ export const translations: Translations = {
   "admin.delete_tooltip": {
     en: "Delete product",
     es: "Eliminar producto",
+  },
+  "store.essence.instructions": {
+    en: "Here you can combine Bach essences that you consider will serve your emotional health and well-being and that of your family. We recommend choosing 2 to 5 essences maximum 7.",
+    es: "Aquí puedes combinar las esencias de Bach que consideres te servirán para tu salud y bienestar emocional y la de tu familia. Te recomendamos elegir de 2 a 5 esencias máximo 7.",
+  },
+  "store.essence.empty_slots": {
+    en: "If your combination for example only has 2 essences, leave the other spaces blank or unfilled, add your selection to the cart and proceed to payment.",
+    es: "Si tu combinación por ejemplo solo lleva 2 esencias deja los demás espacios en blanco o sin llenar, agrega tu selección a la cesta y procede a tu pago.",
+  },
+  "store.essence.dosage": {
+    en: "Remember that the recommended dose is 4 drops 4 to 6 times a day for 3 weeks.",
+    es: "Recuerda que la dosis recomendada es 4 gotas de 4 a 6 veces al día durante 3 semanas.",
+  },
+  "store.essence.whatsapp_help": {
+    en: "You can make your own blend following the above instructions or get advice from us on the WhatsApp icon.",
+    es: "Puedes hacer tu propia mezcla siguiendo las indicaciones anteriores o asesórate con nosotros en el icono de WhatsApp.",
+  },
+  "store.essence.learn_more": {
+    en: "Learn more about our essences",
+    es: "Conoce más de nuestras esencias",
+  },
+  "store.essence.select_base": {
+    en: "Choose a base",
+    es: "Elige una base",
+  },
+  "store.essence.select_option": {
+    en: "Choose an option",
+    es: "Elige una opción",
+  },
+  "store.essence.skip_option": {
+    en: "Choose your essence or skip",
+    es: "Elije tu esencia o salta",
+  },
+  "store.essence.essence_number": {
+    en: "Essence",
+    es: "Esencia",
+  },
+  "store.essence.base.brandy": {
+    en: "Brandy",
+    es: "Brandy",
+  },
+  "store.essence.base.glycerin": {
+    en: "Glycerin",
+    es: "Glicerina",
   },
 };
 
