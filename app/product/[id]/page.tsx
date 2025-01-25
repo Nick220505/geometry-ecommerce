@@ -149,8 +149,8 @@ export default function ProductPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Product Image */}
-        <div className="relative">
-          <div className="relative aspect-square lg:sticky lg:top-8">
+        <div className="lg:sticky lg:top-8">
+          <div className="relative aspect-square">
             <Image
               src={
                 product.imageUrl ||
