@@ -1,16 +1,16 @@
 "use client";
 
-import { AddProductDialog } from "@/components/admin/add-product-dialog";
-import { DeleteDialog } from "@/components/admin/delete-dialog";
-import { EditProductDialog } from "@/components/admin/edit-product-dialog";
-import { ProductTable } from "@/components/admin/product-table";
 import { useTranslation } from "@/components/language-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useProductManagement } from "@/hooks/use-product-management";
 import { Product } from "@/types/product";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AddProductDialog } from "./components/add-product-dialog";
+import { DeleteDialog } from "./components/delete-dialog";
+import { EditProductDialog } from "./components/edit-product-dialog";
+import { ProductTable } from "./components/product-table";
+import { useProductManagement } from "./hooks/use-product-management";
 
 export default function AdminDashboard() {
   const { products, isLoading, error, fetchProducts, deleteProduct } =
