@@ -484,9 +484,9 @@ export const translations: Translations = {
     en: "Brandy",
     es: "Brandy",
   },
-  "store.essence.base.glycerin": {
-    en: "Glycerin",
-    es: "Glicerina",
+  "store.essence.base.water": {
+    en: "Water",
+    es: "Agua",
   },
   "admin.error": {
     en: "Error",

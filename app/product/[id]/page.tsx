@@ -209,8 +209,8 @@ export default function ProductPage() {
                       <SelectItem value="brandy">
                         {t("store.essence.base.brandy")}
                       </SelectItem>
-                      <SelectItem value="glicerina">
-                        {t("store.essence.base.glycerin")}
+                      <SelectItem value="water">
+                        {t("store.essence.base.water")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
