@@ -65,7 +65,7 @@ export function ProductForm({
       />
 
       <ImageUpload
-        initialImageUrl={formData.imageUrl}
+        initialImageUrl={formData.imageUrl || undefined}
         productType={formData.type}
         onImageUrlChange={(url) => handleFieldChange("imageUrl", url)}
       />
